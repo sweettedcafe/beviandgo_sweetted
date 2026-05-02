@@ -395,6 +395,15 @@
           </div>
           <button class="btn btn-primary" onclick="openBatchModal()">+ New Batch</button>
         </div>
+       </div>
+
+      <div class="cat-bar">
+        <span class="cat-label">View:</span>
+        <div class="cat-toggle" data-page="dashboard">
+          <button type="button" data-cat="all"    onclick="setPageCategory('dashboard','all')">🌐 All</button>
+          <button type="button" data-cat="coffee" onclick="setPageCategory('dashboard','coffee')">☕ Coffee</button>
+          <button type="button" data-cat="pastry" onclick="setPageCategory('dashboard','pastry')">🍰 Pastry</button>
+        </div>
       </div>
 
       <div class="grid-4">
@@ -1011,21 +1020,23 @@ function getIngredientCategory(i) {
   return 'pastry';
 }
 
-const pageCategory = {
-  ingredients: localStorage.getItem('cat_ingredients') || 'all',
-  batches:     localStorage.getItem('cat_batches')     || 'all',
-  sales:       localStorage.getItem('cat_sales')       || 'all',
-  eod:         localStorage.getItem('cat_eod')         || 'all',
-};
-function setPageCategory(page, cat) {
-  pageCategory[page] = cat;
-  localStorage.setItem('cat_' + page, cat);
-  document.querySelectorAll(`.cat-toggle[data-page="${page}"] button`).forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
-  if (page === 'ingredients') renderInventory();
-  else if (page === 'batches') renderBatches();
-  else if (page === 'sales')   applySalesFilters();
-  else if (page === 'eod')     loadEODInventoryRows();
-}
+ const pageCategory = {
+   dashboard:   localStorage.getItem('cat_dashboard')   || 'all',
+   ingredients: localStorage.getItem('cat_ingredients') || 'all',
+   batches:     localStorage.getItem('cat_batches')     || 'all',
+   sales:       localStorage.getItem('cat_sales')       || 'all',
+   eod:         localStorage.getItem('cat_eod')         || 'all',
+ };
+ function setPageCategory(page, cat) {
+   pageCategory[page] = cat;
+   localStorage.setItem('cat_' + page, cat);
+   document.querySelectorAll(`.cat-toggle[data-page="${page}"] button`).forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+   if (page === 'dashboard')    refreshDashboard();
+   else if (page === 'ingredients') renderInventory();
+   else if (page === 'batches') renderBatches();
+   else if (page === 'sales')   applySalesFilters();
+   else if (page === 'eod')     loadEODInventoryRows();
+ }
 function setPOSCategory(cat) {
   posCategory = cat;
   localStorage.setItem('posCategory', cat);
@@ -1237,27 +1248,29 @@ function getBatchCode(batch) {
 }
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
-function refreshDashboard() {
-  const destF = document.getElementById('dash-filter-dest').value;
-  const filteredSales = allSalesData.filter(s => {
-    const matchName = selectedDashboardItems.length === 0 || selectedDashboardItems.includes(s.item_name);
-    const matchDest = !destF || s.destination === destF;
-    const bc = s.batches?.batch_code || s.batch_code || generateBatchCode(s.batches?.date);
-    const matchBatch = selectedDashBatchIds.length === 0 || selectedDashBatchIds.includes(bc);
-    return matchName && matchDest && matchBatch;
-  });
-  const filteredBatches = batches.filter(b => {
-    const matchName = selectedDashboardItems.length === 0 || selectedDashboardItems.includes(b.name);
-    const bc = getBatchCode(b);
-    const matchBatch = selectedDashBatchIds.length === 0 || selectedDashBatchIds.includes(bc);
-    return matchName && matchBatch;
-  });
-  renderStats(filteredSales, filteredBatches);
-  renderSalesChart(filteredSales);
-  renderInsights(filteredSales);
-  renderDashboardLists(filteredBatches);
-  renderDailySuggestion(filteredBatches);
-}
+ function refreshDashboard() {
+   const destF = document.getElementById('dash-filter-dest').value;
+   const dashCat = pageCategory.dashboard;
+   const matchCat = (cat) => dashCat === 'all' || (cat || 'pastry') === dashCat;
+   const filteredSales = allSalesData.filter(s => {
+     const matchName = selectedDashboardItems.length === 0 || selectedDashboardItems.includes(s.item_name);
+     const matchDest = !destF || s.destination === destF;
+     const bc = s.batches?.batch_code || s.batch_code || generateBatchCode(s.batches?.date);
+     const matchBatch = selectedDashBatchIds.length === 0 || selectedDashBatchIds.includes(bc);
+     return matchName && matchDest && matchBatch && matchCat(s.batches?.category || s.category);
+   });
+   const filteredBatches = batches.filter(b => {
+     const matchName = selectedDashboardItems.length === 0 || selectedDashboardItems.includes(b.name);
+     const bc = getBatchCode(b);
+     const matchBatch = selectedDashBatchIds.length === 0 || selectedDashBatchIds.includes(bc);
+     return matchName && matchBatch && matchCat(b.category);
+   });
+   renderStats(filteredSales, filteredBatches);
+   renderSalesChart(filteredSales);
+   renderInsights(filteredSales);
+   renderDashboardLists(filteredBatches);
+   renderDailySuggestion(filteredBatches);
+ }
 
 function renderStats(sData, bData) {
   document.getElementById('d-ing').innerText = ingredients.length;
