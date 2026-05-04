@@ -361,14 +361,32 @@
     </div>
     <div class="nav-tabs">
       <button class="nav-tab active admin-only" onclick="showPage('dashboard')">📊 Dashboard</button>
-      <button class="nav-tab admin-only" onclick="showPage('ingredients')">🧂 Inventory</button>
+      <button class="nav-tab admin-only" onclick="showPage('register')">🧾 Register</button>
+      <button class="nav-tab admin-only" onclick="showPage('orders')">📦 Orders</button>
+      <button class="nav-tab" id="nav-clock" onclick="showPage('clock')">⏱️ Clock In/Out</button>
+      <button class="nav-tab admin-only" onclick="showPage('staff')">👥 Staff</button>
+      <button class="nav-tab admin-only" onclick="showPage('assignments')">📝 Assignments</button>
+      <button class="nav-tab admin-only" onclick="showPage('payroll')">💰 Payroll</button>
+      <button class="nav-tab admin-only" onclick="showPage('menu')">📖 Menu</button>
+      <button class="nav-tab admin-only" onclick="showPage('customers')">❤️ Customers</button>
+      <button class="nav-tab admin-only" onclick="showPage('rewards')">⭐ Rewards</button>
+      <button class="nav-tab" id="nav-shifts" onclick="showPage('shifts')">📅 Shifts</button>
+      <button class="nav-tab admin-only" onclick="showPage('timesheets')">🕒 Timesheets</button>
+      <button class="nav-tab admin-only" onclick="showPage('ingredients')">📦 Inventory</button>
+      <button class="nav-tab admin-only" onclick="showPage('suppliers')">🚚 Suppliers</button>
+      <button class="nav-tab admin-only" onclick="showPage('insights')">📈 Insights</button>
+      <button class="nav-tab admin-only" onclick="showPage('reports')">📊 Reports</button>
+      <button class="nav-tab admin-only" onclick="showPage('discounts')">🏷️ Discounts</button>
+      <button class="nav-tab admin-only" onclick="showPage('tables')">🍽️ Tables</button>
+      <button class="nav-tab admin-only" onclick="showPage('locations')">📍 Locations</button>
+      <button class="nav-tab admin-only" onclick="showPage('audit')">📜 Audit Log</button>
       <button class="nav-tab admin-only" onclick="showPage('batches')">🍰 Batches</button>
       <button class="nav-tab admin-only" onclick="showPage('sales')">🛒 Sales</button>
       <button class="nav-tab admin-only" onclick="showPage('pos')">🛍️ POS</button>
       <button class="nav-tab" id="nav-eod" onclick="showPage('eod')" style="display:none;">📋 End of Day</button>
-      <button class="nav-tab barista-only" id="nav-clock" onclick="showPage('clock')" style="display:none;">⏱️ Clock In/Out</button>
-      <button class="nav-tab barista-only" id="nav-shifts" onclick="showPage('shifts')" style="display:none;">📅 My Shifts</button>
       <button class="nav-tab barista-only" id="nav-leave" onclick="showPage('leave')" style="display:none;">🏖️ Leave / Emergency</button>
+      <button class="nav-tab" onclick="showPage('help')">❓ Help</button>
+      <button class="nav-tab" onclick="showPage('settings')">⚙️ Settings</button>
       <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
       <button class="btn btn-ghost" onclick="handleLogout()" style="margin-left:8px; font-size:12px; padding:5px 10px;">Logout</button>
     </div>
@@ -861,6 +879,349 @@
       </div>
     </div>
 
+    <!-- ============ PLACEHOLDER PAGES (per client menu screenshot) ============ -->
+    <div class="page" id="page-register">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">🧾 Register</h2>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary" id="reg-open-btn"  onclick="openRegisterModal('open')">📂 Open Register</button>
+          <button class="btn btn-save"    id="reg-close-btn" onclick="openRegisterModal('close')" style="display:none;">📕 Close Register</button>
+          <button class="btn btn-ghost"   id="reg-mvmt-btn"  onclick="openRegisterModal('move')"  style="display:none;">💵 Cash In/Out</button>
+        </div>
+      </div>
+      <div id="reg-status-card" class="card" style="padding:20px; margin-bottom:20px;">Loading register status…</div>
+      <h3 style="margin-bottom:10px;">Recent Sessions</h3>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table class="table"><thead><tr>
+          <th>Opened</th><th>Closed</th><th>Float</th><th>Expected</th><th>Counted</th><th>Variance</th><th>Status</th>
+        </tr></thead><tbody id="reg-sessions-body"><tr><td colspan="7" style="text-align:center; padding:20px;">No sessions yet</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-orders">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">📦 Orders</h2>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <select id="orders-status-filter" class="form-input" style="margin-bottom:0; width:160px;" onchange="renderOrdersPage()">
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="preparing">Preparing</option>
+            <option value="ready">Ready</option>
+            <option value="completed">Completed</option>
+            <option value="voided">Voided</option>
+            <option value="refunded">Refunded</option>
+          </select>
+          <input type="text" id="orders-search" class="form-input" placeholder="🔍 Search #order or notes" style="margin-bottom:0; width:220px;" oninput="renderOrdersPage()">
+          <button class="btn btn-ghost" onclick="loadOrders()">🔄 Refresh</button>
+        </div>
+      </div>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table class="table"><thead><tr>
+          <th>#</th><th>Time</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th>
+        </tr></thead><tbody id="orders-body"><tr><td colspan="7" style="text-align:center; padding:20px;">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-staff">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">👥 Staff</h2>
+        <button class="btn btn-primary" onclick="openStaffModal()">+ Add Staff</button>
+      </div>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table class="table"><thead><tr>
+          <th>Name</th><th>Position</th><th>Email</th><th>Phone</th><th>Rate (₱/hr)</th><th>Hire Date</th><th>Status</th><th>Actions</th>
+        </tr></thead><tbody id="staff-body"><tr><td colspan="8" style="text-align:center; padding:20px;">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-assignments">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">📝 Assignments</h2>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+          <div><label class="form-label">Date</label><input type="date" id="assign-date" class="form-input" style="margin-bottom:0;" onchange="loadAssignments()"></div>
+          <button class="btn btn-primary" onclick="openAssignModal()">+ New Task</button>
+        </div>
+      </div>
+      <div id="assign-board" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px;">
+        <div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-muted);">Loading…</div>
+      </div>
+    </div>
+
+    <div class="page" id="page-payroll">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">💰 Payroll</h2>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+          <div><label class="form-label">From</label><input type="date" id="pay-from" class="form-input" style="margin-bottom:0;"></div>
+          <div><label class="form-label">To</label><input type="date" id="pay-to" class="form-input" style="margin-bottom:0;"></div>
+          <button class="btn btn-primary" onclick="computePayroll()">⚙️ Compute</button>
+          <button class="btn btn-save"    onclick="finalizePayroll()">💾 Save Period</button>
+        </div>
+      </div>
+      <div class="card" style="padding:0; overflow:auto; margin-bottom:20px;">
+        <table class="table"><thead><tr>
+          <th>Staff</th><th>Reg Hours</th><th>OT Hours</th><th>Rate (₱/hr)</th><th>Gross</th><th>Deductions</th><th>Net Pay</th>
+        </tr></thead><tbody id="pay-body"><tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">Pick a date range and click Compute.</td></tr>
+        <tfoot id="pay-foot"></tfoot></tbody></table>
+      </div>
+      <h3 style="margin-bottom:10px;">Saved Payroll Periods</h3>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table class="table"><thead><tr><th>Period</th><th>Status</th><th>Created</th></tr></thead>
+        <tbody id="pay-periods-body"><tr><td colspan="3" style="text-align:center; padding:20px;">No saved periods.</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-menu">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">📖 Menu</h2>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-ghost"   onclick="openMenuCategoryModal()">+ Category</button>
+          <button class="btn btn-primary" onclick="openMenuItemModal()">+ Menu Item</button>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:280px 1fr; gap:16px;" class="menu-grid">
+        <div class="card" style="padding:14px;">
+          <h3 style="margin-bottom:10px;">Categories</h3>
+          <div id="menu-categories-list" style="display:flex; flex-direction:column; gap:6px;">Loading…</div>
+        </div>
+        <div class="card" style="padding:0; overflow:auto;">
+          <table class="table"><thead><tr>
+            <th>Item</th><th>Category</th><th>Price</th><th>Cost</th><th>POS</th><th>Active</th><th>Actions</th>
+          </tr></thead><tbody id="menu-items-body"><tr><td colspan="7" style="text-align:center; padding:20px;">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-customers">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">❤️ Customers</h2>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+          <input type="text" id="cust-search" class="form-input" placeholder="🔍 Search name / phone / email" style="margin-bottom:0; width:240px;" oninput="renderCustomers()">
+          <button class="btn btn-primary" onclick="openCustomerModal()">+ New Customer</button>
+        </div>
+      </div>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table class="table"><thead><tr>
+          <th>Name</th><th>Phone</th><th>Email</th><th>Birthday</th><th>Points</th><th>Lifetime Spend</th><th>Last Visit</th><th></th>
+        </tr></thead><tbody id="cust-body"><tr><td colspan="8" style="text-align:center; padding:20px;">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-rewards">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">⭐ Rewards Program</h2>
+        <button class="btn btn-primary" onclick="saveRewardsProgram()">💾 Save Program</button>
+      </div>
+      <div class="card" style="padding:20px; margin-bottom:20px;">
+        <h3 style="margin-bottom:14px;">Loyalty Rules</h3>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Program Name</label><input id="rw-name" class="form-input" type="text"></div>
+          <div class="form-group"><label class="form-label">Active</label>
+            <select id="rw-active" class="form-input"><option value="true">Yes</option><option value="false">No</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Points earned per ₱1 spent</label><input id="rw-ppp" class="form-input" type="number" step="0.01" min="0"></div>
+          <div class="form-group"><label class="form-label">₱ value per 1 point (redemption)</label><input id="rw-vpp" class="form-input" type="number" step="0.01" min="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Sign-up bonus points</label><input id="rw-signup" class="form-input" type="number" min="0"></div>
+          <div class="form-group"><label class="form-label">Birthday bonus points</label><input id="rw-bday" class="form-input" type="number" min="0"></div>
+        </div>
+      </div>
+      <h3 style="margin-bottom:10px;">Top Members (by points)</h3>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table class="table"><thead><tr>
+          <th>Customer</th><th>Balance</th><th>Lifetime</th><th>Last Activity</th>
+        </tr></thead><tbody id="rw-members-body"><tr><td colspan="4" style="text-align:center; padding:20px;">No members yet</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-timesheets">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">🕒 Timesheets</h2>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+          <div><label class="form-label">Week starting</label><input type="date" id="ts-week" class="form-input" style="margin-bottom:0;" onchange="loadTimesheets()"></div>
+          <button class="btn btn-ghost" onclick="loadTimesheets()">🔄 Refresh</button>
+        </div>
+      </div>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table class="table"><thead><tr id="ts-head">
+          <th>Staff</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th><th>Total</th>
+        </tr></thead><tbody id="ts-body"><tr><td colspan="9" style="text-align:center; padding:20px;">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-suppliers">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">🚚 Suppliers</h2>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+          <input type="text" id="sup-search" class="form-input" placeholder="🔍 Search supplier" style="margin-bottom:0; width:220px;" oninput="renderSuppliers()">
+          <button class="btn btn-primary" onclick="openSupplierModal()">+ New Supplier</button>
+        </div>
+      </div>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table class="table"><thead><tr>
+          <th>Name</th><th>Contact</th><th>Phone</th><th>Email</th><th>Lead Time (days)</th><th>Last Order</th><th>Active</th><th></th>
+        </tr></thead><tbody id="sup-body"><tr><td colspan="8" style="text-align:center; padding:20px;">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-insights">
+      <h2 style="font-family:'Playfair Display'; font-size:24px;">📈 Insights</h2>
+      <p style="color:var(--text-muted); margin-top:8px;">Deeper analytics: trends, peak hours, top products.</p>
+      <div style="margin-top:24px; padding:40px; background:var(--card-bg); border-radius:12px; text-align:center; border:2px dashed var(--border-color);">
+        <div style="font-size:48px;">🚧</div><h3 style="margin-top:12px;">Coming Soon</h3>
+        <p style="color:var(--text-muted);">Advanced charts beyond the dashboard: cohort, retention, basket analysis.</p>
+      </div>
+    </div>
+
+    <div class="page" id="page-reports">
+      <h2 style="font-family:'Playfair Display'; font-size:24px;">📊 Reports</h2>
+      <p style="color:var(--text-muted); margin-top:8px;">Downloadable reports: sales, COGS, payroll, inventory.</p>
+      <div style="margin-top:24px; padding:40px; background:var(--card-bg); border-radius:12px; text-align:center; border:2px dashed var(--border-color);">
+        <div style="font-size:48px;">🚧</div><h3 style="margin-top:12px;">Coming Soon</h3>
+        <p style="color:var(--text-muted);">Generate PDF/Excel reports by date range. Z-reports, X-reports, monthly summaries.</p>
+      </div>
+    </div>
+
+    <div class="page" id="page-discounts">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">🏷️ Discounts</h2>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+          <input type="text" id="disc-search" class="form-input" placeholder="🔍 Search code / name" style="margin-bottom:0; width:220px;" oninput="renderDiscounts()">
+          <button class="btn btn-primary" onclick="openDiscountModal()">+ New Discount</button>
+        </div>
+      </div>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table class="table"><thead><tr>
+          <th>Code</th><th>Name</th><th>Type</th><th>Value</th><th>Min Order</th><th>Uses</th><th>Limit</th><th>Expires</th><th>Active</th><th></th>
+        </tr></thead><tbody id="disc-body"><tr><td colspan="10" style="text-align:center; padding:20px;">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-tables">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">🍽️ Dining Tables</h2>
+        <button class="btn btn-primary" onclick="openTableModal()">+ Add Table</button>
+      </div>
+      <div id="tables-floor" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:14px;">
+        <div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-muted);">Loading tables…</div>
+      </div>
+    </div>
+
+    <div class="page" id="page-locations">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">📍 Locations</h2>
+        <button class="btn btn-primary" onclick="openLocationModal()">+ New Location</button>
+      </div>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table class="table"><thead><tr>
+          <th>Name</th><th>Code</th><th>Address</th><th>Phone</th><th>Manager</th><th>Active</th><th></th>
+        </tr></thead><tbody id="loc-body"><tr><td colspan="7" style="text-align:center; padding:20px;">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-audit">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">📜 Audit Log</h2>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+          <div><label class="form-label">Entity</label>
+            <select id="audit-entity" class="form-input" style="margin-bottom:0;" onchange="renderAuditLog()">
+              <option value="">All</option>
+              <option>orders</option><option>menu_items</option><option>menu_categories</option>
+              <option>staff_profiles</option><option>assignments</option><option>register_sessions</option>
+              <option>dining_tables</option><option>rewards_program</option><option>payroll_periods</option>
+            </select>
+          </div>
+          <div><label class="form-label">Action</label>
+            <select id="audit-action" class="form-input" style="margin-bottom:0;" onchange="renderAuditLog()">
+              <option value="">All</option><option>create</option><option>update</option>
+              <option>delete</option><option>void</option><option>refund</option><option>login</option>
+            </select>
+          </div>
+          <input type="text" id="audit-search" class="form-input" placeholder="🔍 Search summary" style="margin-bottom:0; width:220px;" oninput="renderAuditLog()">
+          <button class="btn btn-ghost" onclick="loadAuditLog()">🔄 Refresh</button>
+        </div>
+      </div>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table class="table"><thead><tr>
+          <th>When</th><th>User</th><th>Action</th><th>Entity</th><th>Summary</th>
+        </tr></thead><tbody id="audit-body"><tr><td colspan="5" style="text-align:center; padding:20px;">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-help">
+      <h2 style="font-family:'Playfair Display'; font-size:24px;">❓ Help</h2>
+      <p style="color:var(--text-muted); margin-top:8px;">Guides, FAQs, and support.</p>
+      <div style="margin-top:24px; padding:40px; background:var(--card-bg); border-radius:12px; text-align:center; border:2px dashed var(--border-color);">
+        <div style="font-size:48px;">🚧</div><h3 style="margin-top:12px;">Coming Soon</h3>
+        <p style="color:var(--text-muted);">User manual, video tutorials, contact support form.</p>
+      </div>
+    </div>
+
+    <div class="page" id="page-settings">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h2 style="font-family:'Playfair Display'; font-size:24px;">⚙️ Settings</h2>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+      </div>
+      <div class="card" style="padding:20px; margin-bottom:18px;">
+        <h3 style="margin-bottom:14px;">Business Profile</h3>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Business Name</label><input id="st-biz-name" class="form-input" type="text"></div>
+          <div class="form-group"><label class="form-label">Tagline</label><input id="st-tagline" class="form-input" type="text"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Phone</label><input id="st-phone" class="form-input" type="text"></div>
+          <div class="form-group"><label class="form-label">Email</label><input id="st-email" class="form-input" type="email"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Address</label><textarea id="st-address" class="form-input" rows="2"></textarea></div>
+      </div>
+      <div class="card" style="padding:20px; margin-bottom:18px;">
+        <h3 style="margin-bottom:14px;">Tax & Currency</h3>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Currency</label>
+            <select id="st-currency" class="form-input">
+              <option value="PHP">₱ PHP</option><option value="USD">$ USD</option><option value="EUR">€ EUR</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">VAT %</label><input id="st-vat" class="form-input" type="number" step="0.01" min="0" value="12"></div>
+          <div class="form-group"><label class="form-label">VAT Inclusive?</label>
+            <select id="st-vat-incl" class="form-input"><option value="true">Yes</option><option value="false">No</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">TIN / Tax ID</label><input id="st-tin" class="form-input" type="text"></div>
+          <div class="form-group"><label class="form-label">Service Charge %</label><input id="st-svc" class="form-input" type="number" step="0.01" min="0" value="0"></div>
+        </div>
+      </div>
+      <div class="card" style="padding:20px; margin-bottom:18px;">
+        <h3 style="margin-bottom:14px;">Receipt</h3>
+        <div class="form-group"><label class="form-label">Receipt Header</label><textarea id="st-rcpt-header" class="form-input" rows="2" placeholder="Sweet Ted Cafe — Thank you!"></textarea></div>
+        <div class="form-group"><label class="form-label">Receipt Footer</label><textarea id="st-rcpt-footer" class="form-input" rows="2" placeholder="Visit us again ☕"></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Show Logo</label>
+            <select id="st-rcpt-logo" class="form-input"><option value="true">Yes</option><option value="false">No</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Paper Width</label>
+            <select id="st-rcpt-width" class="form-input"><option value="58">58 mm</option><option value="80">80 mm</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:20px;">
+        <h3 style="margin-bottom:14px;">Operations</h3>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Default Location</label><select id="st-default-loc" class="form-input"></select></div>
+          <div class="form-group"><label class="form-label">Low-stock Alert Email</label><input id="st-alert-email" class="form-input" type="email"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Week Starts On</label>
+            <select id="st-week-start" class="form-input"><option value="1">Monday</option><option value="0">Sunday</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Overtime Threshold (hrs/wk)</label><input id="st-ot-hrs" class="form-input" type="number" step="0.1" min="0" value="40"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <footer>© 2026 Sweet Ted Cafe. All rights reserved. 🐻</footer>
@@ -1060,6 +1421,167 @@
     </form>
   </div>
 </div>
+
+<!-- ===== Menu Item Modal ===== -->
+<div id="modal-menu-item" class="modal-bg"><div class="modal">
+  <h2 id="modal-menu-item-title" style="font-family:'Playfair Display'; margin-bottom:16px;">New Menu Item</h2>
+  <form onsubmit="handleSaveMenuItem(event)">
+    <input type="hidden" id="mi-id">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Name</label><input id="mi-name" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Category</label><select id="mi-category" class="form-input"></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Selling Price (₱)</label><input id="mi-price" type="number" step="0.01" min="0" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Cost (₱)</label><input id="mi-cost" type="number" step="0.01" min="0" class="form-input" value="0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">SKU</label><input id="mi-sku" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Show in POS</label><select id="mi-pos" class="form-input"><option value="true">Yes</option><option value="false">No</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Description</label><textarea id="mi-desc" class="form-input" rows="2"></textarea></div>
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+      <button type="button" class="btn btn-ghost" onclick="closeModal('modal-menu-item')">Cancel</button>
+      <button type="submit" class="btn btn-save">Save</button>
+    </div>
+  </form>
+</div></div>
+
+<!-- ===== Menu Category Modal ===== -->
+<div id="modal-menu-cat" class="modal-bg"><div class="modal">
+  <h2 style="font-family:'Playfair Display'; margin-bottom:16px;">New Category</h2>
+  <form onsubmit="handleSaveMenuCategory(event)">
+    <div class="form-group"><label class="form-label">Category Name</label><input id="mc-name" class="form-input" required></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Type</label>
+        <select id="mc-type" class="form-input"><option value="coffee">Coffee</option><option value="pastry">Pastry</option><option value="other">Other</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Sort Order</label><input id="mc-sort" type="number" class="form-input" value="0"></div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+      <button type="button" class="btn btn-ghost" onclick="closeModal('modal-menu-cat')">Cancel</button>
+      <button type="submit" class="btn btn-save">Save</button>
+    </div>
+  </form>
+</div></div>
+
+<!-- ===== Register Modal ===== -->
+<div id="modal-register" class="modal-bg"><div class="modal">
+  <h2 id="modal-register-title" style="font-family:'Playfair Display'; margin-bottom:16px;">Open Register</h2>
+  <form onsubmit="handleRegisterSubmit(event)">
+    <input type="hidden" id="reg-mode" value="open">
+    <div id="reg-field-float" class="form-group"><label class="form-label">Opening Cash Float (₱)</label><input id="reg-float" type="number" step="0.01" min="0" class="form-input" value="0"></div>
+    <div id="reg-field-count" class="form-group" style="display:none;"><label class="form-label">Counted Cash on Hand (₱)</label><input id="reg-count" type="number" step="0.01" min="0" class="form-input"></div>
+    <div id="reg-field-mvmt" style="display:none;">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Movement</label>
+          <select id="reg-kind" class="form-input">
+            <option value="cash_in">Cash In</option><option value="cash_out">Cash Out</option>
+            <option value="payout">Payout</option><option value="tip">Tip</option><option value="refund">Refund</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Amount (₱)</label><input id="reg-amt" type="number" step="0.01" class="form-input"></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea id="reg-notes" class="form-input" rows="2"></textarea></div>
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+      <button type="button" class="btn btn-ghost" onclick="closeModal('modal-register')">Cancel</button>
+      <button type="submit" class="btn btn-save">Confirm</button>
+    </div>
+  </form>
+</div></div>
+
+<!-- ===== Dining Table Modal ===== -->
+<div id="modal-table" class="modal-bg"><div class="modal">
+  <h2 id="modal-table-title" style="font-family:'Playfair Display'; margin-bottom:16px;">New Table</h2>
+  <form onsubmit="handleSaveTable(event)">
+    <input type="hidden" id="tb-id">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Label</label><input id="tb-label" class="form-input" required placeholder="T1, Patio 3, …"></div>
+      <div class="form-group"><label class="form-label">Seats</label><input id="tb-seats" type="number" min="1" class="form-input" value="2"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Area</label><input id="tb-area" class="form-input" value="Main"></div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select id="tb-status" class="form-input">
+          <option value="available">Available</option><option value="occupied">Occupied</option>
+          <option value="reserved">Reserved</option><option value="cleaning">Cleaning</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:space-between; margin-top:16px;">
+      <button type="button" class="btn btn-ghost" id="tb-delete-btn" onclick="deleteTable()" style="display:none; color:#c43;">Delete</button>
+      <div style="display:flex; gap:10px; margin-left:auto;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-table')">Cancel</button>
+        <button type="submit" class="btn btn-save">Save</button>
+      </div>
+    </div>
+  </form>
+</div></div>
+
+<!-- ===== Staff Modal ===== -->
+<div id="modal-staff" class="modal-bg"><div class="modal">
+  <h2 id="modal-staff-title" style="font-family:'Playfair Display'; margin-bottom:16px;">New Staff</h2>
+  <form onsubmit="handleSaveStaff(event)">
+    <input type="hidden" id="sf-id">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full Name</label><input id="sf-name" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Position</label><input id="sf-pos" class="form-input" value="Barista"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Email</label><input id="sf-email" type="email" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input id="sf-phone" class="form-input"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Hourly Rate (₱)</label><input id="sf-rate" type="number" step="0.01" min="0" class="form-input" value="0"></div>
+      <div class="form-group"><label class="form-label">Hire Date</label><input id="sf-hire" type="date" class="form-input"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Status</label>
+        <select id="sf-active" class="form-input"><option value="true">Active</option><option value="false">Inactive</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Linked auth user_id (optional)</label><input id="sf-uid" class="form-input" placeholder="uuid…"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea id="sf-notes" class="form-input" rows="2"></textarea></div>
+    <div style="display:flex; gap:10px; justify-content:space-between; margin-top:16px;">
+      <button type="button" class="btn btn-ghost" id="sf-delete-btn" onclick="deleteStaff()" style="display:none; color:#c43;">Delete</button>
+      <div style="display:flex; gap:10px; margin-left:auto;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-staff')">Cancel</button>
+        <button type="submit" class="btn btn-save">Save</button>
+      </div>
+    </div>
+  </form>
+</div></div>
+
+<!-- ===== Assignment Modal ===== -->
+<div id="modal-assign" class="modal-bg"><div class="modal">
+  <h2 style="font-family:'Playfair Display'; margin-bottom:16px;">New Assignment</h2>
+  <form onsubmit="handleSaveAssign(event)">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Staff</label><select id="as-staff" class="form-input"></select></div>
+      <div class="form-group"><label class="form-label">Date</label><input id="as-date" type="date" class="form-input" required></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Station</label>
+        <select id="as-station" class="form-input">
+          <option>Bar</option><option>Register</option><option>Prep</option>
+          <option>Cleaning</option><option>Restock</option><option>Floor</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select id="as-status" class="form-input">
+          <option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="done">Done</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Task</label><input id="as-task" class="form-input" required placeholder="e.g. Restock milk pitchers"></div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea id="as-notes" class="form-input" rows="2"></textarea></div>
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+      <button type="button" class="btn btn-ghost" onclick="closeModal('modal-assign')">Cancel</button>
+      <button type="submit" class="btn btn-save">Save</button>
+    </div>
+  </form>
+</div></div>
 
 <script>
 const SUPABASE_URL = 'https://bczzmvhmxrkjvmohqkgx.supabase.co';
@@ -1503,6 +2025,21 @@ function showPage(p, programmatic) {
   if (p === 'clock')  { initClockPage(); }
   if (p === 'shifts') { renderShiftsPage(); }
   if (p === 'leave')  { renderLeavePage(); }
+  if (p === 'menu')     { initMenuPage(); }
+  if (p === 'orders')   { initOrdersPage(); }
+  if (p === 'register') { initRegisterPage(); }
+  if (p === 'tables')   { initTablesPage(); }
+  if (p === 'rewards')  { initRewardsPage(); }
+  if (p === 'staff')       { initStaffPage(); }
+  if (p === 'assignments') { initAssignmentsPage(); }
+  if (p === 'timesheets')  { initTimesheetsPage(); }
+  if (p === 'payroll')     { initPayrollPage(); }
+  if (p === 'audit')       { initAuditPage(); }
+  if (p === 'customers')   { initCustomersPage(); }
+  if (p === 'suppliers')   { initSuppliersPage(); }
+  if (p === 'discounts')   { initDiscountsPage(); }
+  if (p === 'locations')   { initLocationsPage(); }
+  if (p === 'settings')    { initSettingsPage(); }
   // Bear mascot on dashboard (admin) and EOD page (barista)
   const bear = document.getElementById('bear-mascot');
   if (bear) bear.style.display = (p === 'dashboard' || p === 'eod') ? 'flex' : 'none';
@@ -3044,6 +3581,1036 @@ async function submitLeaveRequest(e) {
   e.target.reset();
   renderLeavePage();
 }
+
+// ============================================================================
+// BATCH 1 — Sales-facing modules (Menu / Orders / Register / Tables / Rewards)
+// ============================================================================
+let menuCategories = [], menuItems = [], selectedMenuCatId = null;
+let ordersData = [];
+let regCurrentSession = null, regSessions = [];
+let diningTables = [];
+let rewardsProgram = null;
+const peso = (n) => '₱' + Number(n||0).toFixed(2);
+
+// ─── MENU ──────────────────────────────────────────────────────────────────
+async function initMenuPage() {
+  const [{data: cats}, {data: items}] = await Promise.all([
+    _sb.from('menu_categories').select('*').order('sort_order'),
+    _sb.from('menu_items').select('*').order('name'),
+  ]);
+  menuCategories = cats || []; menuItems = items || [];
+  renderMenuCategories(); renderMenuItems();
+}
+function renderMenuCategories() {
+  const el = document.getElementById('menu-categories-list');
+  if (!menuCategories.length) { el.innerHTML = '<div style="color:var(--text-muted); font-size:13px;">No categories yet.</div>'; return; }
+  el.innerHTML = `<div class="menu-cat-pill ${selectedMenuCatId===null?'active':''}" onclick="filterMenuByCategory(null)" style="padding:8px 10px; border-radius:8px; cursor:pointer; ${selectedMenuCatId===null?'background:var(--brown-dark); color:#fff;':'background:var(--sage-bg);'}">All items (${menuItems.length})</div>` +
+    menuCategories.map(c => {
+      const count = menuItems.filter(i => i.category_id === c.id).length;
+      const active = selectedMenuCatId === c.id;
+      return `<div class="menu-cat-pill" onclick="filterMenuByCategory('${c.id}')" style="padding:8px 10px; border-radius:8px; cursor:pointer; display:flex; justify-content:space-between; ${active?'background:var(--brown-dark); color:#fff;':'background:var(--sage-bg);'}">
+        <span>${c.category_type==='coffee'?'☕':'🍰'} ${c.name}</span><span style="opacity:.7;">${count}</span></div>`;
+    }).join('');
+}
+function filterMenuByCategory(id) { selectedMenuCatId = id; renderMenuCategories(); renderMenuItems(); }
+function renderMenuItems() {
+  const body = document.getElementById('menu-items-body');
+  const list = selectedMenuCatId ? menuItems.filter(i => i.category_id === selectedMenuCatId) : menuItems;
+  if (!list.length) { body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">No items. Click "+ Menu Item".</td></tr>'; return; }
+  body.innerHTML = list.map(i => {
+    const cat = menuCategories.find(c => c.id === i.category_id);
+    return `<tr>
+      <td><strong>${i.name}</strong>${i.sku?`<br><small style="color:var(--text-muted);">${i.sku}</small>`:''}</td>
+      <td>${cat ? cat.name : '—'}</td>
+      <td>${peso(i.price)}</td><td>${peso(i.cost)}</td>
+      <td>${i.show_in_pos?'✅':'—'}</td><td>${i.is_active?'✅':'❌'}</td>
+      <td><button class="btn btn-ghost" style="padding:4px 8px;" onclick="openMenuItemModal('${i.id}')">Edit</button>
+          <button class="btn btn-ghost" style="padding:4px 8px; color:#c43;" onclick="deleteMenuItem('${i.id}')">Del</button></td>
+    </tr>`;
+  }).join('');
+}
+function openMenuItemModal(id=null) {
+  document.querySelector('#modal-menu-item form').reset();
+  document.getElementById('mi-id').value = '';
+  const sel = document.getElementById('mi-category');
+  sel.innerHTML = '<option value="">—</option>' + menuCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  if (id) {
+    const it = menuItems.find(x => x.id === id);
+    document.getElementById('modal-menu-item-title').textContent = 'Edit Menu Item';
+    document.getElementById('mi-id').value = it.id;
+    document.getElementById('mi-name').value = it.name;
+    document.getElementById('mi-category').value = it.category_id || '';
+    document.getElementById('mi-price').value = it.price;
+    document.getElementById('mi-cost').value = it.cost;
+    document.getElementById('mi-sku').value = it.sku || '';
+    document.getElementById('mi-pos').value = String(!!it.show_in_pos);
+    document.getElementById('mi-desc').value = it.description || '';
+  } else {
+    document.getElementById('modal-menu-item-title').textContent = 'New Menu Item';
+  }
+  openModal('modal-menu-item');
+}
+async function handleSaveMenuItem(e) {
+  e.preventDefault();
+  const id = document.getElementById('mi-id').value;
+  const payload = {
+    name: document.getElementById('mi-name').value.trim(),
+    category_id: document.getElementById('mi-category').value || null,
+    price: parseFloat(document.getElementById('mi-price').value) || 0,
+    cost:  parseFloat(document.getElementById('mi-cost').value) || 0,
+    sku:   document.getElementById('mi-sku').value.trim() || null,
+    show_in_pos: document.getElementById('mi-pos').value === 'true',
+    description: document.getElementById('mi-desc').value.trim() || null,
+    updated_at: new Date().toISOString(),
+  };
+  const q = id ? _sb.from('menu_items').update(payload).eq('id', id)
+               : _sb.from('menu_items').insert(payload);
+  const { error } = await q;
+  if (error) return alert('Save failed: ' + error.message);
+  closeModal('modal-menu-item'); initMenuPage();
+}
+async function deleteMenuItem(id) {
+  if (!confirm('Delete this menu item?')) return;
+  const { error } = await _sb.from('menu_items').delete().eq('id', id);
+  if (error) return alert(error.message);
+  initMenuPage();
+}
+function openMenuCategoryModal() {
+  document.querySelector('#modal-menu-cat form').reset();
+  document.getElementById('mc-sort').value = (menuCategories.length || 0) + 1;
+  openModal('modal-menu-cat');
+}
+async function handleSaveMenuCategory(e) {
+  e.preventDefault();
+  const payload = {
+    name: document.getElementById('mc-name').value.trim(),
+    category_type: document.getElementById('mc-type').value,
+    sort_order: parseInt(document.getElementById('mc-sort').value) || 0,
+  };
+  const { error } = await _sb.from('menu_categories').insert(payload);
+  if (error) return alert(error.message);
+  closeModal('modal-menu-cat'); initMenuPage();
+}
+
+// ─── ORDERS ────────────────────────────────────────────────────────────────
+async function initOrdersPage() { await loadOrders(); }
+async function loadOrders() {
+  const { data, error } = await _sb.from('orders')
+    .select('*, order_items(name_snapshot, qty)')
+    .order('created_at', { ascending: false }).limit(200);
+  if (error) { document.getElementById('orders-body').innerHTML = `<tr><td colspan="7" style="color:#c43; text-align:center; padding:20px;">${error.message}</td></tr>`; return; }
+  ordersData = data || []; renderOrdersPage();
+}
+function renderOrdersPage() {
+  const status = document.getElementById('orders-status-filter').value;
+  const q = (document.getElementById('orders-search').value || '').toLowerCase();
+  const list = ordersData.filter(o => (!status || o.status===status) && (!q || String(o.order_number).includes(q) || (o.notes||'').toLowerCase().includes(q)));
+  const body = document.getElementById('orders-body');
+  if (!list.length) { body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">No orders match.</td></tr>'; return; }
+  const badge = (s) => {
+    const c = {pending:'#e2a13b', preparing:'#3b82f6', ready:'#10b981', completed:'#6b7280', voided:'#9ca3af', refunded:'#c43'};
+    return `<span style="background:${c[s]||'#888'}; color:#fff; padding:3px 8px; border-radius:6px; font-size:12px;">${s}</span>`;
+  };
+  body.innerHTML = list.map(o => {
+    const items = (o.order_items||[]).map(x => `${x.qty}× ${x.name_snapshot}`).join(', ') || '—';
+    const next = nextOrderStatus(o.status);
+    return `<tr>
+      <td>#${o.order_number}</td>
+      <td>${new Date(o.created_at).toLocaleString()}</td>
+      <td style="max-width:300px;">${items}</td>
+      <td>${peso(o.total)}</td><td>${o.payment_method||'—'}</td>
+      <td>${badge(o.status)}</td>
+      <td>
+        ${next ? `<button class="btn btn-ghost" style="padding:4px 8px;" onclick="advanceOrderStatus('${o.id}','${next}')">→ ${next}</button>`:''}
+        ${['pending','preparing','ready'].includes(o.status) ? `<button class="btn btn-ghost" style="padding:4px 8px; color:#c43;" onclick="voidOrder('${o.id}')">Void</button>`:''}
+      </td></tr>`;
+  }).join('');
+}
+function nextOrderStatus(s) { return ({pending:'preparing', preparing:'ready', ready:'completed'})[s] || null; }
+async function advanceOrderStatus(id, status) {
+  const patch = { status }; if (status==='completed') patch.completed_at = new Date().toISOString();
+  const { error } = await _sb.from('orders').update(patch).eq('id', id);
+  if (error) return alert(error.message); loadOrders();
+}
+async function voidOrder(id) {
+  if (!confirm('Void this order?')) return;
+  const { error } = await _sb.from('orders').update({ status: 'voided' }).eq('id', id);
+  if (error) return alert(error.message); loadOrders();
+}
+
+// ─── REGISTER ──────────────────────────────────────────────────────────────
+async function initRegisterPage() {
+  const { data: { user } } = await _sb.auth.getUser();
+  if (!user) { document.getElementById('reg-status-card').innerHTML = '<em>Please log in.</em>'; return; }
+  const { data: open } = await _sb.from('register_sessions').select('*').eq('user_id', user.id).eq('status','open').order('opened_at', {ascending:false}).limit(1);
+  regCurrentSession = (open && open[0]) || null;
+  const { data: recent } = await _sb.from('register_sessions').select('*').eq('user_id', user.id).order('opened_at', {ascending:false}).limit(20);
+  regSessions = recent || [];
+  renderRegisterStatus(); renderRegisterSessions();
+}
+function renderRegisterStatus() {
+  const card = document.getElementById('reg-status-card');
+  document.getElementById('reg-open-btn').style.display  = regCurrentSession ? 'none' : 'inline-flex';
+  document.getElementById('reg-close-btn').style.display = regCurrentSession ? 'inline-flex' : 'none';
+  document.getElementById('reg-mvmt-btn').style.display  = regCurrentSession ? 'inline-flex' : 'none';
+  if (!regCurrentSession) { card.innerHTML = '<strong>Register is CLOSED.</strong> Click <em>Open Register</em> to begin a session.'; return; }
+  card.innerHTML = `<div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+    <div><strong>Register OPEN</strong><br><small>Since ${new Date(regCurrentSession.opened_at).toLocaleString()}</small></div>
+    <div style="text-align:right;"><div>Float: <strong>${peso(regCurrentSession.opening_float)}</strong></div></div>
+  </div>`;
+}
+function renderRegisterSessions() {
+  const body = document.getElementById('reg-sessions-body');
+  if (!regSessions.length) { body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No sessions yet</td></tr>'; return; }
+  body.innerHTML = regSessions.map(s => `<tr>
+    <td>${new Date(s.opened_at).toLocaleString()}</td>
+    <td>${s.closed_at ? new Date(s.closed_at).toLocaleString() : '—'}</td>
+    <td>${peso(s.opening_float)}</td>
+    <td>${s.expected_total!=null?peso(s.expected_total):'—'}</td>
+    <td>${s.closing_count!=null?peso(s.closing_count):'—'}</td>
+    <td style="color:${(s.variance||0)<0?'#c43':'inherit'};">${s.variance!=null?peso(s.variance):'—'}</td>
+    <td>${s.status==='open'?'🟢 Open':'⚪ Closed'}</td></tr>`).join('');
+}
+function openRegisterModal(mode) {
+  document.getElementById('reg-mode').value = mode;
+  document.querySelector('#modal-register form').reset();
+  document.getElementById('reg-mode').value = mode;
+  document.getElementById('reg-field-float').style.display = mode==='open'  ? 'block' : 'none';
+  document.getElementById('reg-field-count').style.display = mode==='close' ? 'block' : 'none';
+  document.getElementById('reg-field-mvmt').style.display  = mode==='move'  ? 'block' : 'none';
+  document.getElementById('modal-register-title').textContent = mode==='open'?'Open Register':mode==='close'?'Close Register':'Cash Movement';
+  openModal('modal-register');
+}
+async function handleRegisterSubmit(e) {
+  e.preventDefault();
+  const mode = document.getElementById('reg-mode').value;
+  const { data: { user } } = await _sb.auth.getUser();
+  if (!user) return alert('Login required.');
+  const notes = document.getElementById('reg-notes').value.trim() || null;
+  if (mode === 'open') {
+    if (regCurrentSession) return alert('A session is already open.');
+    const payload = { user_id: user.id, opening_float: parseFloat(document.getElementById('reg-float').value)||0, notes };
+    const { error } = await _sb.from('register_sessions').insert(payload);
+    if (error) return alert(error.message);
+  } else if (mode === 'close') {
+    if (!regCurrentSession) return alert('No open session.');
+    const counted = parseFloat(document.getElementById('reg-count').value) || 0;
+    // Compute expected = opening_float + sum(cash movements)
+    const { data: mvmts } = await _sb.from('register_movements').select('kind, amount').eq('session_id', regCurrentSession.id);
+    let net = 0;
+    (mvmts||[]).forEach(m => {
+      const sign = (m.kind==='cash_in'||m.kind==='tip') ? 1 : -1;
+      net += sign * Number(m.amount);
+    });
+    const expected = Number(regCurrentSession.opening_float) + net;
+    const { error } = await _sb.from('register_sessions').update({
+      status:'closed', closed_at: new Date().toISOString(),
+      closing_count: counted, expected_total: expected, variance: counted - expected, notes
+    }).eq('id', regCurrentSession.id);
+    if (error) return alert(error.message);
+  } else if (mode === 'move') {
+    if (!regCurrentSession) return alert('No open session.');
+    const payload = {
+      session_id: regCurrentSession.id, user_id: user.id,
+      kind: document.getElementById('reg-kind').value,
+      amount: parseFloat(document.getElementById('reg-amt').value) || 0,
+      reason: notes,
+    };
+    const { error } = await _sb.from('register_movements').insert(payload);
+    if (error) return alert(error.message);
+  }
+  closeModal('modal-register'); initRegisterPage();
+}
+
+// ─── DINING TABLES ─────────────────────────────────────────────────────────
+async function initTablesPage() {
+  const { data, error } = await _sb.from('dining_tables').select('*').order('label');
+  if (error) { document.getElementById('tables-floor').innerHTML = `<div style="color:#c43;">${error.message}</div>`; return; }
+  diningTables = data || []; renderDiningTables();
+}
+function renderDiningTables() {
+  const el = document.getElementById('tables-floor');
+  if (!diningTables.length) {
+    el.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-muted);">No tables yet. Click "+ Add Table".</div>'; return;
+  }
+  const colors = { available:'#10b981', occupied:'#ef4444', reserved:'#f59e0b', cleaning:'#6b7280' };
+  el.innerHTML = diningTables.map(t => `
+    <div onclick="openTableModal('${t.id}')" style="cursor:pointer; padding:18px; border-radius:12px; background:var(--card-bg); border:2px solid ${colors[t.status]||'#888'}; text-align:center; transition:.2s;">
+      <div style="font-size:28px;">🍽️</div>
+      <div style="font-weight:700; margin-top:6px;">${t.label}</div>
+      <div style="font-size:12px; color:var(--text-muted);">${t.seats} seats · ${t.area||'—'}</div>
+      <div style="margin-top:6px; font-size:11px; color:${colors[t.status]||'#888'}; font-weight:600; text-transform:uppercase;">${t.status}</div>
+    </div>`).join('');
+}
+function openTableModal(id=null) {
+  document.querySelector('#modal-table form').reset();
+  document.getElementById('tb-id').value = '';
+  document.getElementById('tb-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  if (id) {
+    const t = diningTables.find(x => x.id === id);
+    document.getElementById('modal-table-title').textContent = 'Edit Table';
+    document.getElementById('tb-id').value = t.id;
+    document.getElementById('tb-label').value = t.label;
+    document.getElementById('tb-seats').value = t.seats;
+    document.getElementById('tb-area').value = t.area || '';
+    document.getElementById('tb-status').value = t.status;
+  } else {
+    document.getElementById('modal-table-title').textContent = 'New Table';
+  }
+  openModal('modal-table');
+}
+async function handleSaveTable(e) {
+  e.preventDefault();
+  const id = document.getElementById('tb-id').value;
+  const payload = {
+    label: document.getElementById('tb-label').value.trim(),
+    seats: parseInt(document.getElementById('tb-seats').value) || 1,
+    area:  document.getElementById('tb-area').value.trim() || 'Main',
+    status: document.getElementById('tb-status').value,
+  };
+  const q = id ? _sb.from('dining_tables').update(payload).eq('id', id)
+               : _sb.from('dining_tables').insert(payload);
+  const { error } = await q;
+  if (error) return alert(error.message);
+  closeModal('modal-table'); initTablesPage();
+}
+async function deleteTable() {
+  const id = document.getElementById('tb-id').value;
+  if (!id || !confirm('Delete this table?')) return;
+  const { error } = await _sb.from('dining_tables').delete().eq('id', id);
+  if (error) return alert(error.message);
+  closeModal('modal-table'); initTablesPage();
+}
+
+// ─── REWARDS ───────────────────────────────────────────────────────────────
+async function initRewardsPage() {
+  const { data: prog } = await _sb.from('rewards_program').select('*').limit(1);
+  rewardsProgram = (prog && prog[0]) || null;
+  if (rewardsProgram) {
+    document.getElementById('rw-name').value   = rewardsProgram.name || '';
+    document.getElementById('rw-active').value = String(!!rewardsProgram.is_active);
+    document.getElementById('rw-ppp').value    = rewardsProgram.points_per_peso ?? 1;
+    document.getElementById('rw-vpp').value    = rewardsProgram.peso_per_point ?? 0.10;
+    document.getElementById('rw-signup').value = rewardsProgram.signup_bonus ?? 0;
+    document.getElementById('rw-bday').value   = rewardsProgram.birthday_bonus ?? 0;
+  }
+  const { data: members } = await _sb.from('customer_points').select('*').order('points_balance', {ascending:false}).limit(20);
+  const body = document.getElementById('rw-members-body');
+  if (!members || !members.length) { body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">No members yet</td></tr>'; }
+  else body.innerHTML = members.map(m => `<tr>
+    <td><code>${(m.customer_id||'').substring(0,8)}…</code></td>
+    <td>${m.points_balance}</td><td>${m.lifetime_points}</td>
+    <td>${m.updated_at ? new Date(m.updated_at).toLocaleString() : '—'}</td></tr>`).join('');
+}
+async function saveRewardsProgram() {
+  const payload = {
+    name: document.getElementById('rw-name').value.trim() || 'Sweet Ted Rewards',
+    is_active: document.getElementById('rw-active').value === 'true',
+    points_per_peso: parseFloat(document.getElementById('rw-ppp').value) || 0,
+    peso_per_point:  parseFloat(document.getElementById('rw-vpp').value) || 0,
+    signup_bonus:    parseInt(document.getElementById('rw-signup').value) || 0,
+    birthday_bonus:  parseInt(document.getElementById('rw-bday').value) || 0,
+    updated_at: new Date().toISOString(),
+  };
+  let q;
+  if (rewardsProgram && rewardsProgram.id) q = _sb.from('rewards_program').update(payload).eq('id', rewardsProgram.id);
+  else q = _sb.from('rewards_program').insert(payload);
+  const { error } = await q;
+  if (error) return alert(error.message);
+  alert('Rewards program saved ✓'); initRewardsPage();
+}
+
+
+// ============================================================================
+// BATCH 2 — Staff / Assignments / Timesheets / Payroll / Audit Log
+// ============================================================================
+let staffList = [], assignList = [], auditList = [], payrollDraft = [], payPeriods = [];
+
+// Helper: write to audit log (best-effort, never throws)
+async function logAudit(action, entity, entity_id, summary, metadata) {
+  try {
+    const { data: { user } } = await _sb.auth.getUser();
+    await _sb.from('audit_log').insert({
+      user_id: user?.id || null, user_email: user?.email || null,
+      action, entity, entity_id: entity_id ? String(entity_id) : null,
+      summary: summary || null, metadata: metadata || null,
+    });
+  } catch (e) { console.warn('audit log failed', e); }
+}
+
+// ─── STAFF ─────────────────────────────────────────────────────────────────
+async function initStaffPage() {
+  const { data, error } = await _sb.from('staff_profiles').select('*').order('full_name');
+  if (error) { document.getElementById('staff-body').innerHTML = `<tr><td colspan="8" style="color:#c43; padding:20px; text-align:center;">${error.message}</td></tr>`; return; }
+  staffList = data || []; renderStaffTable();
+}
+function renderStaffTable() {
+  const body = document.getElementById('staff-body');
+  if (!staffList.length) { body.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted);">No staff yet. Click "+ Add Staff".</td></tr>'; return; }
+  body.innerHTML = staffList.map(s => `<tr>
+    <td><strong>${s.full_name}</strong></td>
+    <td>${s.position || '—'}</td>
+    <td>${s.email || '—'}</td>
+    <td>${s.phone || '—'}</td>
+    <td>${peso(s.hourly_rate)}</td>
+    <td>${s.hire_date || '—'}</td>
+    <td>${s.is_active ? '🟢 Active' : '⚪ Inactive'}</td>
+    <td><button class="btn btn-ghost" style="padding:4px 8px;" onclick="openStaffModal('${s.id}')">Edit</button></td>
+  </tr>`).join('');
+}
+function openStaffModal(id=null) {
+  document.querySelector('#modal-staff form').reset();
+  document.getElementById('sf-id').value = '';
+  document.getElementById('sf-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  if (id) {
+    const s = staffList.find(x => x.id === id);
+    document.getElementById('modal-staff-title').textContent = 'Edit Staff';
+    document.getElementById('sf-id').value = s.id;
+    document.getElementById('sf-name').value = s.full_name;
+    document.getElementById('sf-pos').value = s.position || '';
+    document.getElementById('sf-email').value = s.email || '';
+    document.getElementById('sf-phone').value = s.phone || '';
+    document.getElementById('sf-rate').value = s.hourly_rate;
+    document.getElementById('sf-hire').value = s.hire_date || '';
+    document.getElementById('sf-active').value = String(!!s.is_active);
+    document.getElementById('sf-uid').value = s.user_id || '';
+    document.getElementById('sf-notes').value = s.notes || '';
+  } else {
+    document.getElementById('modal-staff-title').textContent = 'New Staff';
+  }
+  openModal('modal-staff');
+}
+async function handleSaveStaff(e) {
+  e.preventDefault();
+  const id = document.getElementById('sf-id').value;
+  const payload = {
+    full_name: document.getElementById('sf-name').value.trim(),
+    position:  document.getElementById('sf-pos').value.trim() || 'Barista',
+    email:     document.getElementById('sf-email').value.trim() || null,
+    phone:     document.getElementById('sf-phone').value.trim() || null,
+    hourly_rate: parseFloat(document.getElementById('sf-rate').value) || 0,
+    hire_date: document.getElementById('sf-hire').value || null,
+    is_active: document.getElementById('sf-active').value === 'true',
+    user_id:   document.getElementById('sf-uid').value.trim() || null,
+    notes:     document.getElementById('sf-notes').value.trim() || null,
+    updated_at: new Date().toISOString(),
+  };
+  const q = id ? _sb.from('staff_profiles').update(payload).eq('id', id)
+               : _sb.from('staff_profiles').insert(payload);
+  const { error, data } = await q.select();
+  if (error) return alert('Save failed: ' + error.message);
+  await logAudit(id?'update':'create', 'staff_profiles', id || (data && data[0]?.id), payload.full_name);
+  closeModal('modal-staff'); initStaffPage();
+}
+async function deleteStaff() {
+  const id = document.getElementById('sf-id').value;
+  if (!id || !confirm('Delete this staff member?')) return;
+  const s = staffList.find(x => x.id === id);
+  const { error } = await _sb.from('staff_profiles').delete().eq('id', id);
+  if (error) return alert(error.message);
+  await logAudit('delete', 'staff_profiles', id, s?.full_name);
+  closeModal('modal-staff'); initStaffPage();
+}
+
+// ─── ASSIGNMENTS ───────────────────────────────────────────────────────────
+async function initAssignmentsPage() {
+  if (!staffList.length) {
+    const { data } = await _sb.from('staff_profiles').select('*').order('full_name');
+    staffList = data || [];
+  }
+  const dt = document.getElementById('assign-date');
+  if (!dt.value) dt.value = new Date().toISOString().slice(0,10);
+  loadAssignments();
+}
+async function loadAssignments() {
+  const date = document.getElementById('assign-date').value || new Date().toISOString().slice(0,10);
+  const { data, error } = await _sb.from('assignments').select('*').eq('shift_date', date).order('station');
+  if (error) { document.getElementById('assign-board').innerHTML = `<div style="color:#c43;">${error.message}</div>`; return; }
+  assignList = data || []; renderAssignBoard();
+}
+function renderAssignBoard() {
+  const stations = ['Bar','Register','Prep','Cleaning','Restock','Floor'];
+  const el = document.getElementById('assign-board');
+  el.innerHTML = stations.map(st => {
+    const tasks = assignList.filter(a => a.station === st);
+    const cards = tasks.length ? tasks.map(a => {
+      const s = staffList.find(x => x.id === a.staff_id);
+      const dot = a.status==='done'?'✅':a.status==='in_progress'?'🔄':'⏳';
+      return `<div onclick="cycleAssignStatus('${a.id}','${a.status}')" style="padding:10px; background:var(--sage-bg); border-radius:8px; margin-bottom:8px; cursor:pointer;">
+        <div style="display:flex; justify-content:space-between;"><strong>${dot} ${a.task}</strong>
+          <button onclick="event.stopPropagation(); deleteAssign('${a.id}')" style="background:none; border:none; color:#c43; cursor:pointer;">×</button></div>
+        <small style="color:var(--text-muted);">${s?s.full_name:'Unassigned'}${a.notes?' · '+a.notes:''}</small>
+      </div>`;
+    }).join('') : '<div style="color:var(--text-muted); font-size:13px;">No tasks.</div>';
+    return `<div class="card" style="padding:14px;">
+      <h4 style="margin-bottom:10px;">${st} <span style="color:var(--text-muted); font-weight:400;">(${tasks.length})</span></h4>
+      ${cards}
+    </div>`;
+  }).join('');
+}
+function openAssignModal() {
+  document.querySelector('#modal-assign form').reset();
+  const sel = document.getElementById('as-staff');
+  sel.innerHTML = '<option value="">— Unassigned —</option>' + staffList.filter(s=>s.is_active).map(s => `<option value="${s.id}">${s.full_name}</option>`).join('');
+  document.getElementById('as-date').value = document.getElementById('assign-date').value || new Date().toISOString().slice(0,10);
+  openModal('modal-assign');
+}
+async function handleSaveAssign(e) {
+  e.preventDefault();
+  const { data: { user } } = await _sb.auth.getUser();
+  const payload = {
+    staff_id:   document.getElementById('as-staff').value || null,
+    shift_date: document.getElementById('as-date').value,
+    station:    document.getElementById('as-station').value,
+    task:       document.getElementById('as-task').value.trim(),
+    status:     document.getElementById('as-status').value,
+    notes:      document.getElementById('as-notes').value.trim() || null,
+    created_by: user?.id || null,
+  };
+  const { error } = await _sb.from('assignments').insert(payload);
+  if (error) return alert(error.message);
+  await logAudit('create','assignments', null, payload.task);
+  closeModal('modal-assign'); loadAssignments();
+}
+async function cycleAssignStatus(id, current) {
+  const next = ({pending:'in_progress', in_progress:'done', done:'pending'})[current] || 'pending';
+  const { error } = await _sb.from('assignments').update({ status: next }).eq('id', id);
+  if (error) return alert(error.message);
+  loadAssignments();
+}
+async function deleteAssign(id) {
+  if (!confirm('Delete this task?')) return;
+  const { error } = await _sb.from('assignments').delete().eq('id', id);
+  if (error) return alert(error.message);
+  await logAudit('delete','assignments', id);
+  loadAssignments();
+}
+
+// ─── TIMESHEETS ────────────────────────────────────────────────────────────
+function _mondayOf(d) {
+  const x = new Date(d); const day = (x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x;
+}
+async function initTimesheetsPage() {
+  const w = document.getElementById('ts-week');
+  if (!w.value) w.value = _mondayOf(new Date()).toISOString().slice(0,10);
+  loadTimesheets();
+}
+async function loadTimesheets() {
+  if (!staffList.length) {
+    const { data } = await _sb.from('staff_profiles').select('*').order('full_name');
+    staffList = data || [];
+  }
+  const start = _mondayOf(document.getElementById('ts-week').value || new Date());
+  const end = new Date(start); end.setDate(end.getDate()+7);
+  // Pull shifts in range. Schema expected: shifts(user_id, clock_in, clock_out)
+  const { data: shifts, error } = await _sb.from('shifts')
+    .select('user_id, clock_in, clock_out')
+    .gte('clock_in', start.toISOString())
+    .lt('clock_in',  end.toISOString());
+  if (error) { document.getElementById('ts-body').innerHTML = `<tr><td colspan="9" style="color:#c43; padding:20px; text-align:center;">${error.message}</td></tr>`; return; }
+  // Update header dates
+  const head = document.getElementById('ts-head');
+  const labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  head.innerHTML = '<th>Staff</th>' + labels.map((lbl,i)=>{
+    const d = new Date(start); d.setDate(d.getDate()+i);
+    return `<th>${lbl}<br><small style="color:var(--text-muted); font-weight:400;">${d.getMonth()+1}/${d.getDate()}</small></th>`;
+  }).join('') + '<th>Total</th>';
+  // Aggregate hours per staff per day-of-week (only shifts with clock_out)
+  const byUser = {};
+  (shifts||[]).forEach(s => {
+    if (!s.clock_out) return;
+    const ms = new Date(s.clock_out) - new Date(s.clock_in);
+    if (ms <= 0) return;
+    const dow = ((new Date(s.clock_in).getDay()+6)%7);
+    byUser[s.user_id] = byUser[s.user_id] || [0,0,0,0,0,0,0];
+    byUser[s.user_id][dow] += ms / 3600000;
+  });
+  const body = document.getElementById('ts-body');
+  const rows = staffList.filter(s=>s.user_id).map(s => {
+    const days = byUser[s.user_id] || [0,0,0,0,0,0,0];
+    const total = days.reduce((a,b)=>a+b,0);
+    return `<tr><td><strong>${s.full_name}</strong></td>${days.map(h=>`<td>${h?h.toFixed(2):'—'}</td>`).join('')}<td><strong>${total.toFixed(2)}</strong></td></tr>`;
+  });
+  body.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="9" style="text-align:center; padding:20px; color:var(--text-muted);">No staff with linked auth users yet.</td></tr>';
+}
+
+// ─── PAYROLL ───────────────────────────────────────────────────────────────
+async function initPayrollPage() {
+  if (!staffList.length) {
+    const { data } = await _sb.from('staff_profiles').select('*').order('full_name');
+    staffList = data || [];
+  }
+  // default range: previous full week (Mon-Sun)
+  const today = new Date();
+  const monThis = _mondayOf(today);
+  const monPrev = new Date(monThis); monPrev.setDate(monPrev.getDate()-7);
+  const sunPrev = new Date(monPrev); sunPrev.setDate(sunPrev.getDate()+6);
+  const f = document.getElementById('pay-from'), t = document.getElementById('pay-to');
+  if (!f.value) f.value = monPrev.toISOString().slice(0,10);
+  if (!t.value) t.value = sunPrev.toISOString().slice(0,10);
+  await loadPayPeriods();
+  payrollDraft = []; renderPayrollTable();
+}
+async function loadPayPeriods() {
+  const { data } = await _sb.from('payroll_periods').select('*').order('period_start', {ascending:false}).limit(20);
+  payPeriods = data || [];
+  const body = document.getElementById('pay-periods-body');
+  if (!payPeriods.length) { body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:var(--text-muted);">No saved periods.</td></tr>'; return; }
+  body.innerHTML = payPeriods.map(p => `<tr><td>${p.period_start} → ${p.period_end}</td><td>${p.status}</td><td>${new Date(p.created_at).toLocaleString()}</td></tr>`).join('');
+}
+async function computePayroll() {
+  const from = document.getElementById('pay-from').value;
+  const to   = document.getElementById('pay-to').value;
+  if (!from || !to) return alert('Pick both dates.');
+  const startISO = new Date(from + 'T00:00:00').toISOString();
+  const endISO   = new Date(new Date(to + 'T00:00:00').getTime() + 86400000).toISOString();
+  const { data: shifts, error } = await _sb.from('shifts')
+    .select('user_id, clock_in, clock_out')
+    .gte('clock_in', startISO).lt('clock_in', endISO);
+  if (error) return alert(error.message);
+  const hoursByUser = {};
+  (shifts||[]).forEach(s => {
+    if (!s.clock_out) return;
+    const h = (new Date(s.clock_out) - new Date(s.clock_in)) / 3600000;
+    if (h>0) hoursByUser[s.user_id] = (hoursByUser[s.user_id]||0) + h;
+  });
+  // Build draft per active staff with linked user
+  payrollDraft = staffList.filter(s => s.is_active && s.user_id).map(s => {
+    const total = hoursByUser[s.user_id] || 0;
+    const reg = Math.min(total, 40);
+    const ot  = Math.max(total - 40, 0);
+    const rate = Number(s.hourly_rate)||0;
+    const gross = reg*rate + ot*rate*1.5;
+    return { staff_id: s.id, name: s.full_name, hours_regular: reg, hours_overtime: ot, hourly_rate: rate, gross_pay: gross, deductions: 0, net_pay: gross };
+  });
+  renderPayrollTable();
+}
+function renderPayrollTable() {
+  const body = document.getElementById('pay-body');
+  const foot = document.getElementById('pay-foot');
+  if (!payrollDraft.length) { body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">Pick a date range and click Compute.</td></tr>'; foot.innerHTML=''; return; }
+  body.innerHTML = payrollDraft.map((r,i)=>`<tr>
+    <td>${r.name}</td>
+    <td>${r.hours_regular.toFixed(2)}</td>
+    <td>${r.hours_overtime.toFixed(2)}</td>
+    <td>${peso(r.hourly_rate)}</td>
+    <td>${peso(r.gross_pay)}</td>
+    <td><input type="number" step="0.01" value="${r.deductions}" style="width:90px;" oninput="updatePayDeduction(${i}, this.value)"></td>
+    <td><strong>${peso(r.net_pay)}</strong></td></tr>`).join('');
+  const totGross = payrollDraft.reduce((s,r)=>s+r.gross_pay,0);
+  const totNet   = payrollDraft.reduce((s,r)=>s+r.net_pay,0);
+  foot.innerHTML = `<tr style="font-weight:700; background:var(--sage-bg);"><td colspan="4">TOTAL</td><td>${peso(totGross)}</td><td>${peso(payrollDraft.reduce((s,r)=>s+Number(r.deductions||0),0))}</td><td>${peso(totNet)}</td></tr>`;
+}
+function updatePayDeduction(i, v) {
+  payrollDraft[i].deductions = parseFloat(v)||0;
+  payrollDraft[i].net_pay = payrollDraft[i].gross_pay - payrollDraft[i].deductions;
+  renderPayrollTable();
+}
+async function finalizePayroll() {
+  if (!payrollDraft.length) return alert('Compute first.');
+  const from = document.getElementById('pay-from').value;
+  const to   = document.getElementById('pay-to').value;
+  const { data: per, error: pe } = await _sb.from('payroll_periods')
+    .upsert({ period_start: from, period_end: to, status:'finalized', finalized_at: new Date().toISOString() }, { onConflict: 'period_start,period_end' })
+    .select().single();
+  if (pe) return alert(pe.message);
+  const rows = payrollDraft.map(r => ({
+    period_id: per.id, staff_id: r.staff_id,
+    hours_regular: r.hours_regular, hours_overtime: r.hours_overtime,
+    hourly_rate: r.hourly_rate, gross_pay: r.gross_pay,
+    deductions: r.deductions, net_pay: r.net_pay,
+  }));
+  // upsert per staff
+  for (const row of rows) {
+    await _sb.from('payroll_entries').upsert(row, { onConflict: 'period_id,staff_id' });
+  }
+  await logAudit('create','payroll_periods', per.id, `${from} → ${to} (${rows.length} entries)`);
+  alert('Payroll period saved ✓');
+  loadPayPeriods();
+}
+
+// ─── AUDIT LOG ─────────────────────────────────────────────────────────────
+async function initAuditPage() { await loadAuditLog(); }
+async function loadAuditLog() {
+  const { data, error } = await _sb.from('audit_log').select('*').order('created_at', {ascending:false}).limit(500);
+  if (error) { document.getElementById('audit-body').innerHTML = `<tr><td colspan="5" style="color:#c43; padding:20px; text-align:center;">${error.message}<br><small>(Admin role required)</small></td></tr>`; return; }
+  auditList = data || []; renderAuditLog();
+}
+function renderAuditLog() {
+  const ent = document.getElementById('audit-entity').value;
+  const act = document.getElementById('audit-action').value;
+  const q = (document.getElementById('audit-search').value||'').toLowerCase();
+  const list = auditList.filter(a =>
+    (!ent || a.entity===ent) && (!act || a.action===act) &&
+    (!q || (a.summary||'').toLowerCase().includes(q) || (a.user_email||'').toLowerCase().includes(q))
+  );
+  const body = document.getElementById('audit-body');
+  if (!list.length) { body.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">No log entries match.</td></tr>'; return; }
+  body.innerHTML = list.map(a => `<tr>
+    <td><small>${new Date(a.created_at).toLocaleString()}</small></td>
+    <td>${a.user_email || '<em>system</em>'}</td>
+    <td><code>${a.action}</code></td>
+    <td>${a.entity}</td>
+    <td>${a.summary || '—'}</td></tr>`).join('');
+}
+
+// ─── BATCH 3: CUSTOMERS / SUPPLIERS / DISCOUNTS / LOCATIONS / SETTINGS ─────
+let custList = [], supList = [], discList = [], locList = [], appSettings = {};
+
+// ── CUSTOMERS ───────────────────────────────────────────────────────────
+async function initCustomersPage() {
+  const { data, error } = await _sb.from('customers').select('*').order('name');
+  if (error) { document.getElementById('cust-body').innerHTML = `<tr><td colspan="8" style="color:#c43;padding:20px;text-align:center;">${error.message}</td></tr>`; return; }
+  custList = data || []; renderCustomers();
+}
+function renderCustomers() {
+  const q = (document.getElementById('cust-search')?.value || '').toLowerCase();
+  const list = custList.filter(c => !q || (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q) || (c.email||'').toLowerCase().includes(q));
+  const body = document.getElementById('cust-body');
+  if (!list.length) { body.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text-muted);">No customers.</td></tr>'; return; }
+  body.innerHTML = list.map(c => `<tr>
+    <td><strong>${c.name||''}</strong></td>
+    <td>${c.phone||'—'}</td>
+    <td>${c.email||'—'}</td>
+    <td>${c.birthday ? new Date(c.birthday).toLocaleDateString() : '—'}</td>
+    <td>${(c.points_balance||0).toLocaleString()}</td>
+    <td>₱${Number(c.lifetime_spend||0).toFixed(2)}</td>
+    <td>${c.last_visit ? new Date(c.last_visit).toLocaleDateString() : '—'}</td>
+    <td><button class="btn btn-ghost" onclick="openCustomerModal('${c.id}')">Edit</button></td>
+  </tr>`).join('');
+}
+function openCustomerModal(id=null) {
+  document.querySelector('#modal-customer form').reset();
+  document.getElementById('cu-id').value = '';
+  document.getElementById('cu-delete-btn').style.display = 'none';
+  document.getElementById('modal-customer-title').textContent = 'New Customer';
+  if (id) {
+    const c = custList.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('modal-customer-title').textContent = 'Edit Customer';
+    document.getElementById('cu-id').value = c.id;
+    document.getElementById('cu-name').value = c.name || '';
+    document.getElementById('cu-phone').value = c.phone || '';
+    document.getElementById('cu-email').value = c.email || '';
+    document.getElementById('cu-birthday').value = c.birthday || '';
+    document.getElementById('cu-notes').value = c.notes || '';
+    document.getElementById('cu-points').value = c.points_balance || 0;
+    document.getElementById('cu-delete-btn').style.display = '';
+  }
+  openModal('modal-customer');
+}
+async function handleSaveCustomer(e) {
+  e.preventDefault();
+  const id = document.getElementById('cu-id').value;
+  const payload = {
+    name: document.getElementById('cu-name').value.trim(),
+    phone: document.getElementById('cu-phone').value.trim() || null,
+    email: document.getElementById('cu-email').value.trim() || null,
+    birthday: document.getElementById('cu-birthday').value || null,
+    notes: document.getElementById('cu-notes').value.trim() || null,
+    points_balance: Number(document.getElementById('cu-points').value || 0),
+  };
+  let res;
+  if (id) res = await _sb.from('customers').update(payload).eq('id', id);
+  else    res = await _sb.from('customers').insert(payload);
+  if (res.error) { alert(res.error.message); return; }
+  try { logAudit && logAudit(id ? 'update':'create', 'customers', payload.name); } catch(_){}
+  closeModal('modal-customer'); initCustomersPage();
+}
+async function deleteCustomer() {
+  const id = document.getElementById('cu-id').value;
+  if (!id || !confirm('Delete this customer?')) return;
+  const { error } = await _sb.from('customers').delete().eq('id', id);
+  if (error) { alert(error.message); return; }
+  try { logAudit && logAudit('delete', 'customers', 'id='+id); } catch(_){}
+  closeModal('modal-customer'); initCustomersPage();
+}
+
+// ── SUPPLIERS ───────────────────────────────────────────────────────────
+async function initSuppliersPage() {
+  const { data, error } = await _sb.from('suppliers').select('*').order('name');
+  if (error) { document.getElementById('sup-body').innerHTML = `<tr><td colspan="8" style="color:#c43;padding:20px;text-align:center;">${error.message}</td></tr>`; return; }
+  supList = data || []; renderSuppliers();
+}
+function renderSuppliers() {
+  const q = (document.getElementById('sup-search')?.value || '').toLowerCase();
+  const list = supList.filter(s => !q || (s.name||'').toLowerCase().includes(q));
+  const body = document.getElementById('sup-body');
+  if (!list.length) { body.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text-muted);">No suppliers.</td></tr>'; return; }
+  body.innerHTML = list.map(s => `<tr>
+    <td><strong>${s.name||''}</strong></td>
+    <td>${s.contact_person||'—'}</td>
+    <td>${s.phone||'—'}</td>
+    <td>${s.email||'—'}</td>
+    <td>${s.lead_time_days ?? '—'}</td>
+    <td>${s.last_order_date ? new Date(s.last_order_date).toLocaleDateString() : '—'}</td>
+    <td>${s.is_active ? '✅' : '⏸️'}</td>
+    <td><button class="btn btn-ghost" onclick="openSupplierModal('${s.id}')">Edit</button></td>
+  </tr>`).join('');
+}
+function openSupplierModal(id=null) {
+  document.querySelector('#modal-supplier form').reset();
+  document.getElementById('su-id').value = '';
+  document.getElementById('su-delete-btn').style.display = 'none';
+  document.getElementById('modal-supplier-title').textContent = 'New Supplier';
+  if (id) {
+    const s = supList.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('modal-supplier-title').textContent = 'Edit Supplier';
+    document.getElementById('su-id').value = s.id;
+    document.getElementById('su-name').value = s.name || '';
+    document.getElementById('su-contact').value = s.contact_person || '';
+    document.getElementById('su-phone').value = s.phone || '';
+    document.getElementById('su-email').value = s.email || '';
+    document.getElementById('su-address').value = s.address || '';
+    document.getElementById('su-lead').value = s.lead_time_days ?? '';
+    document.getElementById('su-last').value = s.last_order_date || '';
+    document.getElementById('su-active').value = String(s.is_active !== false);
+    document.getElementById('su-notes').value = s.notes || '';
+    document.getElementById('su-delete-btn').style.display = '';
+  }
+  openModal('modal-supplier');
+}
+async function handleSaveSupplier(e) {
+  e.preventDefault();
+  const id = document.getElementById('su-id').value;
+  const payload = {
+    name: document.getElementById('su-name').value.trim(),
+    contact_person: document.getElementById('su-contact').value.trim() || null,
+    phone: document.getElementById('su-phone').value.trim() || null,
+    email: document.getElementById('su-email').value.trim() || null,
+    address: document.getElementById('su-address').value.trim() || null,
+    lead_time_days: document.getElementById('su-lead').value ? Number(document.getElementById('su-lead').value) : null,
+    last_order_date: document.getElementById('su-last').value || null,
+    is_active: document.getElementById('su-active').value === 'true',
+    notes: document.getElementById('su-notes').value.trim() || null,
+  };
+  let res;
+  if (id) res = await _sb.from('suppliers').update(payload).eq('id', id);
+  else    res = await _sb.from('suppliers').insert(payload);
+  if (res.error) { alert(res.error.message); return; }
+  try { logAudit && logAudit(id ? 'update':'create', 'suppliers', payload.name); } catch(_){}
+  closeModal('modal-supplier'); initSuppliersPage();
+}
+async function deleteSupplier() {
+  const id = document.getElementById('su-id').value;
+  if (!id || !confirm('Delete this supplier?')) return;
+  const { error } = await _sb.from('suppliers').delete().eq('id', id);
+  if (error) { alert(error.message); return; }
+  try { logAudit && logAudit('delete', 'suppliers', 'id='+id); } catch(_){}
+  closeModal('modal-supplier'); initSuppliersPage();
+}
+
+// ── DISCOUNTS ───────────────────────────────────────────────────────────
+async function initDiscountsPage() {
+  const { data, error } = await _sb.from('discounts').select('*').order('code');
+  if (error) { document.getElementById('disc-body').innerHTML = `<tr><td colspan="10" style="color:#c43;padding:20px;text-align:center;">${error.message}</td></tr>`; return; }
+  discList = data || []; renderDiscounts();
+}
+function renderDiscounts() {
+  const q = (document.getElementById('disc-search')?.value || '').toLowerCase();
+  const list = discList.filter(d => !q || (d.code||'').toLowerCase().includes(q) || (d.name||'').toLowerCase().includes(q));
+  const body = document.getElementById('disc-body');
+  if (!list.length) { body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text-muted);">No discounts.</td></tr>'; return; }
+  body.innerHTML = list.map(d => {
+    const valStr = d.discount_type === 'percent' ? `${d.value}%` : `₱${Number(d.value||0).toFixed(2)}`;
+    const exp = d.expires_at ? new Date(d.expires_at).toLocaleDateString() : '—';
+    return `<tr>
+      <td><code>${d.code||'—'}</code></td>
+      <td>${d.name||''}</td>
+      <td>${d.discount_type}</td>
+      <td>${valStr}</td>
+      <td>${d.min_order_total ? '₱'+Number(d.min_order_total).toFixed(2) : '—'}</td>
+      <td>${d.uses_count||0}</td>
+      <td>${d.usage_limit ?? '∞'}</td>
+      <td>${exp}</td>
+      <td>${d.is_active ? '✅' : '⏸️'}</td>
+      <td><button class="btn btn-ghost" onclick="openDiscountModal('${d.id}')">Edit</button></td>
+    </tr>`;
+  }).join('');
+}
+function openDiscountModal(id=null) {
+  document.querySelector('#modal-discount form').reset();
+  document.getElementById('di-id').value = '';
+  document.getElementById('di-delete-btn').style.display = 'none';
+  document.getElementById('modal-discount-title').textContent = 'New Discount';
+  if (id) {
+    const d = discList.find(x => x.id === id);
+    if (!d) return;
+    document.getElementById('modal-discount-title').textContent = 'Edit Discount';
+    document.getElementById('di-id').value = d.id;
+    document.getElementById('di-code').value = d.code || '';
+    document.getElementById('di-name').value = d.name || '';
+    document.getElementById('di-type').value = d.discount_type || 'percent';
+    document.getElementById('di-value').value = d.value ?? 0;
+    document.getElementById('di-min').value = d.min_order_total ?? '';
+    document.getElementById('di-limit').value = d.usage_limit ?? '';
+    document.getElementById('di-expires').value = d.expires_at ? d.expires_at.substring(0,10) : '';
+    document.getElementById('di-active').value = String(d.is_active !== false);
+    document.getElementById('di-notes').value = d.notes || '';
+    document.getElementById('di-delete-btn').style.display = '';
+  }
+  openModal('modal-discount');
+}
+async function handleSaveDiscount(e) {
+  e.preventDefault();
+  const id = document.getElementById('di-id').value;
+  const payload = {
+    code: document.getElementById('di-code').value.trim().toUpperCase(),
+    name: document.getElementById('di-name').value.trim(),
+    discount_type: document.getElementById('di-type').value,
+    value: Number(document.getElementById('di-value').value || 0),
+    min_order_total: document.getElementById('di-min').value ? Number(document.getElementById('di-min').value) : null,
+    usage_limit: document.getElementById('di-limit').value ? Number(document.getElementById('di-limit').value) : null,
+    expires_at: document.getElementById('di-expires').value || null,
+    is_active: document.getElementById('di-active').value === 'true',
+    notes: document.getElementById('di-notes').value.trim() || null,
+  };
+  let res;
+  if (id) res = await _sb.from('discounts').update(payload).eq('id', id);
+  else    res = await _sb.from('discounts').insert(payload);
+  if (res.error) { alert(res.error.message); return; }
+  try { logAudit && logAudit(id ? 'update':'create', 'discounts', payload.code); } catch(_){}
+  closeModal('modal-discount'); initDiscountsPage();
+}
+async function deleteDiscount() {
+  const id = document.getElementById('di-id').value;
+  if (!id || !confirm('Delete this discount?')) return;
+  const { error } = await _sb.from('discounts').delete().eq('id', id);
+  if (error) { alert(error.message); return; }
+  try { logAudit && logAudit('delete', 'discounts', 'id='+id); } catch(_){}
+  closeModal('modal-discount'); initDiscountsPage();
+}
+
+// ── LOCATIONS ───────────────────────────────────────────────────────────
+async function initLocationsPage() {
+  const { data, error } = await _sb.from('locations').select('*').order('name');
+  if (error) { document.getElementById('loc-body').innerHTML = `<tr><td colspan="7" style="color:#c43;padding:20px;text-align:center;">${error.message}</td></tr>`; return; }
+  locList = data || []; renderLocations();
+}
+function renderLocations() {
+  const body = document.getElementById('loc-body');
+  if (!locList.length) { body.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">No locations yet.</td></tr>'; return; }
+  body.innerHTML = locList.map(l => `<tr>
+    <td><strong>${l.name||''}</strong></td>
+    <td><code>${l.code||'—'}</code></td>
+    <td>${l.address||'—'}</td>
+    <td>${l.phone||'—'}</td>
+    <td>${l.manager_name||'—'}</td>
+    <td>${l.is_active ? '✅' : '⏸️'}</td>
+    <td><button class="btn btn-ghost" onclick="openLocationModal('${l.id}')">Edit</button></td>
+  </tr>`).join('');
+}
+function openLocationModal(id=null) {
+  document.querySelector('#modal-location form').reset();
+  document.getElementById('lo-id').value = '';
+  document.getElementById('lo-delete-btn').style.display = 'none';
+  document.getElementById('modal-location-title').textContent = 'New Location';
+  if (id) {
+    const l = locList.find(x => x.id === id);
+    if (!l) return;
+    document.getElementById('modal-location-title').textContent = 'Edit Location';
+    document.getElementById('lo-id').value = l.id;
+    document.getElementById('lo-name').value = l.name || '';
+    document.getElementById('lo-code').value = l.code || '';
+    document.getElementById('lo-address').value = l.address || '';
+    document.getElementById('lo-phone').value = l.phone || '';
+    document.getElementById('lo-manager').value = l.manager_name || '';
+    document.getElementById('lo-active').value = String(l.is_active !== false);
+    document.getElementById('lo-delete-btn').style.display = '';
+  }
+  openModal('modal-location');
+}
+async function handleSaveLocation(e) {
+  e.preventDefault();
+  const id = document.getElementById('lo-id').value;
+  const payload = {
+    name: document.getElementById('lo-name').value.trim(),
+    code: document.getElementById('lo-code').value.trim() || null,
+    address: document.getElementById('lo-address').value.trim() || null,
+    phone: document.getElementById('lo-phone').value.trim() || null,
+    manager_name: document.getElementById('lo-manager').value.trim() || null,
+    is_active: document.getElementById('lo-active').value === 'true',
+  };
+  let res;
+  if (id) res = await _sb.from('locations').update(payload).eq('id', id);
+  else    res = await _sb.from('locations').insert(payload);
+  if (res.error) { alert(res.error.message); return; }
+  try { logAudit && logAudit(id ? 'update':'create', 'locations', payload.name); } catch(_){}
+  closeModal('modal-location'); initLocationsPage();
+}
+async function deleteLocation() {
+  const id = document.getElementById('lo-id').value;
+  if (!id || !confirm('Delete this location?')) return;
+  const { error } = await _sb.from('locations').delete().eq('id', id);
+  if (error) { alert(error.message); return; }
+  try { logAudit && logAudit('delete', 'locations', 'id='+id); } catch(_){}
+  closeModal('modal-location'); initLocationsPage();
+}
+
+// ── SETTINGS ────────────────────────────────────────────────────────────
+async function initSettingsPage() {
+  // Load locations into the default-location dropdown
+  const { data: locs } = await _sb.from('locations').select('id,name').order('name');
+  const sel = document.getElementById('st-default-loc');
+  sel.innerHTML = '<option value="">—</option>' + (locs||[]).map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+
+  const { data, error } = await _sb.from('app_settings').select('*').limit(1).maybeSingle();
+  if (error && error.code !== 'PGRST116') { console.warn(error); }
+  appSettings = data || {};
+  const v = (id, val, def='') => { const el = document.getElementById(id); if (el) el.value = (val ?? def); };
+  v('st-biz-name', appSettings.business_name, 'Sweet Ted Cafe');
+  v('st-tagline', appSettings.tagline, '');
+  v('st-phone', appSettings.phone, '');
+  v('st-email', appSettings.email, '');
+  v('st-address', appSettings.address, '');
+  v('st-currency', appSettings.currency, 'PHP');
+  v('st-vat', appSettings.vat_percent, 12);
+  v('st-vat-incl', String(appSettings.vat_inclusive ?? true), 'true');
+  v('st-tin', appSettings.tax_id, '');
+  v('st-svc', appSettings.service_charge_percent, 0);
+  v('st-rcpt-header', appSettings.receipt_header, '');
+  v('st-rcpt-footer', appSettings.receipt_footer, '');
+  v('st-rcpt-logo', String(appSettings.receipt_show_logo ?? true), 'true');
+  v('st-rcpt-width', String(appSettings.receipt_paper_width || 80), '80');
+  v('st-default-loc', appSettings.default_location_id, '');
+  v('st-alert-email', appSettings.low_stock_alert_email, '');
+  v('st-week-start', String(appSettings.week_start_day ?? 1), '1');
+  v('st-ot-hrs', appSettings.overtime_threshold_hours, 40);
+}
+async function saveSettings() {
+  const payload = {
+    business_name: document.getElementById('st-biz-name').value.trim(),
+    tagline: document.getElementById('st-tagline').value.trim() || null,
+    phone: document.getElementById('st-phone').value.trim() || null,
+    email: document.getElementById('st-email').value.trim() || null,
+    address: document.getElementById('st-address').value.trim() || null,
+    currency: document.getElementById('st-currency').value,
+    vat_percent: Number(document.getElementById('st-vat').value || 0),
+    vat_inclusive: document.getElementById('st-vat-incl').value === 'true',
+    tax_id: document.getElementById('st-tin').value.trim() || null,
+    service_charge_percent: Number(document.getElementById('st-svc').value || 0),
+    receipt_header: document.getElementById('st-rcpt-header').value.trim() || null,
+    receipt_footer: document.getElementById('st-rcpt-footer').value.trim() || null,
+    receipt_show_logo: document.getElementById('st-rcpt-logo').value === 'true',
+    receipt_paper_width: Number(document.getElementById('st-rcpt-width').value || 80),
+    default_location_id: document.getElementById('st-default-loc').value || null,
+    low_stock_alert_email: document.getElementById('st-alert-email').value.trim() || null,
+    week_start_day: Number(document.getElementById('st-week-start').value || 1),
+    overtime_threshold_hours: Number(document.getElementById('st-ot-hrs').value || 40),
+    updated_at: new Date().toISOString(),
+  };
+  let res;
+  if (appSettings && appSettings.id) {
+    res = await _sb.from('app_settings').update(payload).eq('id', appSettings.id);
+  } else {
+    res = await _sb.from('app_settings').insert(payload);
+  }
+  if (res.error) { alert(res.error.message); return; }
+  try { logAudit && logAudit('update', 'app_settings', 'Settings updated'); } catch(_){}
+  alert('Settings saved ✓'); initSettingsPage();
+}
+
 </script>
 
 <!-- Brown Bear Mascot (dashboard only) -->
@@ -3077,6 +4644,133 @@ async function submitLeaveRequest(e) {
     </div>
   </div>
 </div>
+
+<!-- ===== Customer Modal ===== -->
+<div id="modal-customer" class="modal-bg"><div class="modal">
+  <h2 id="modal-customer-title" style="font-family:'Playfair Display'; margin-bottom:16px;">New Customer</h2>
+  <form onsubmit="handleSaveCustomer(event)">
+    <input type="hidden" id="cu-id">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full Name</label><input id="cu-name" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Phone</label><input id="cu-phone" class="form-input"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Email</label><input id="cu-email" type="email" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Birthday</label><input id="cu-birthday" type="date" class="form-input"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Points Balance</label><input id="cu-points" type="number" min="0" class="form-input" value="0"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea id="cu-notes" class="form-input" rows="2"></textarea></div>
+    <div style="display:flex; gap:10px; justify-content:space-between; margin-top:16px;">
+      <button type="button" class="btn btn-ghost" id="cu-delete-btn" onclick="deleteCustomer()" style="display:none; color:#c43;">Delete</button>
+      <div style="display:flex; gap:10px; margin-left:auto;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-customer')">Cancel</button>
+        <button type="submit" class="btn btn-save">Save</button>
+      </div>
+    </div>
+  </form>
+</div></div>
+
+<!-- ===== Supplier Modal ===== -->
+<div id="modal-supplier" class="modal-bg"><div class="modal">
+  <h2 id="modal-supplier-title" style="font-family:'Playfair Display'; margin-bottom:16px;">New Supplier</h2>
+  <form onsubmit="handleSaveSupplier(event)">
+    <input type="hidden" id="su-id">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Supplier Name</label><input id="su-name" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Contact Person</label><input id="su-contact" class="form-input"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Phone</label><input id="su-phone" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Email</label><input id="su-email" type="email" class="form-input"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Address</label><textarea id="su-address" class="form-input" rows="2"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Lead Time (days)</label><input id="su-lead" type="number" min="0" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Last Order Date</label><input id="su-last" type="date" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Active</label>
+        <select id="su-active" class="form-input"><option value="true">Yes</option><option value="false">No</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea id="su-notes" class="form-input" rows="2"></textarea></div>
+    <div style="display:flex; gap:10px; justify-content:space-between; margin-top:16px;">
+      <button type="button" class="btn btn-ghost" id="su-delete-btn" onclick="deleteSupplier()" style="display:none; color:#c43;">Delete</button>
+      <div style="display:flex; gap:10px; margin-left:auto;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-supplier')">Cancel</button>
+        <button type="submit" class="btn btn-save">Save</button>
+      </div>
+    </div>
+  </form>
+</div></div>
+
+<!-- ===== Discount Modal ===== -->
+<div id="modal-discount" class="modal-bg"><div class="modal">
+  <h2 id="modal-discount-title" style="font-family:'Playfair Display'; margin-bottom:16px;">New Discount</h2>
+  <form onsubmit="handleSaveDiscount(event)">
+    <input type="hidden" id="di-id">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Code</label><input id="di-code" class="form-input" required placeholder="SAVE10"></div>
+      <div class="form-group"><label class="form-label">Display Name</label><input id="di-name" class="form-input" required placeholder="10% off"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Type</label>
+        <select id="di-type" class="form-input">
+          <option value="percent">Percent (%)</option>
+          <option value="amount">Fixed Amount (₱)</option>
+          <option value="senior_pwd">Senior / PWD (20%)</option>
+          <option value="bogo">Buy 1 Get 1</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Value</label><input id="di-value" type="number" step="0.01" min="0" class="form-input" required></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Min Order Total (₱)</label><input id="di-min" type="number" step="0.01" min="0" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Usage Limit</label><input id="di-limit" type="number" min="0" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Expires</label><input id="di-expires" type="date" class="form-input"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Active</label>
+        <select id="di-active" class="form-input"><option value="true">Yes</option><option value="false">No</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea id="di-notes" class="form-input" rows="2"></textarea></div>
+    <div style="display:flex; gap:10px; justify-content:space-between; margin-top:16px;">
+      <button type="button" class="btn btn-ghost" id="di-delete-btn" onclick="deleteDiscount()" style="display:none; color:#c43;">Delete</button>
+      <div style="display:flex; gap:10px; margin-left:auto;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-discount')">Cancel</button>
+        <button type="submit" class="btn btn-save">Save</button>
+      </div>
+    </div>
+  </form>
+</div></div>
+
+<!-- ===== Location Modal ===== -->
+<div id="modal-location" class="modal-bg"><div class="modal">
+  <h2 id="modal-location-title" style="font-family:'Playfair Display'; margin-bottom:16px;">New Location</h2>
+  <form onsubmit="handleSaveLocation(event)">
+    <input type="hidden" id="lo-id">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Name</label><input id="lo-name" class="form-input" required placeholder="Sweet Ted Main"></div>
+      <div class="form-group"><label class="form-label">Code</label><input id="lo-code" class="form-input" placeholder="STM"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Address</label><textarea id="lo-address" class="form-input" rows="2"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Phone</label><input id="lo-phone" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Manager</label><input id="lo-manager" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Active</label>
+        <select id="lo-active" class="form-input"><option value="true">Yes</option><option value="false">No</option></select>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:space-between; margin-top:16px;">
+      <button type="button" class="btn btn-ghost" id="lo-delete-btn" onclick="deleteLocation()" style="display:none; color:#c43;">Delete</button>
+      <div style="display:flex; gap:10px; margin-left:auto;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-location')">Cancel</button>
+        <button type="submit" class="btn btn-save">Save</button>
+      </div>
+    </div>
+  </form>
+</div></div>
 
 </body>
 </html>
