@@ -302,6 +302,8 @@
   body.barista-mode .admin-only { display: none !important; }
   body.admin-mode .nav-tab.admin-only { display: inline-flex !important; }
   body.admin-mode .admin-only { display: revert !important; }
+  body:not(.barista-mode) .barista-only { display: none !important; }
+  body.barista-mode .nav-tab.barista-only { display: inline-flex !important; }
 
   /* ─── EOD page ──────────────────────────────────── */
   .eod-table { width:100%; border-collapse:collapse; margin-top:10px; }
@@ -315,7 +317,12 @@
 
 <div id="auth-container">
   <div class="auth-card">
-    <img src="https://lh3.googleusercontent.com/a-/ALV-UjUeccNPa_aqmec1NMIUVJMeteDoopgCvhS7ZnnmDET9Mu_HlBE=s400-p" alt="SweetTed Logo" class="auth-logo">
+    <div style="display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:8px;">
+      <img src="https://lh3.googleusercontent.com/a-/ALV-UjUeccNPa_aqmec1NMIUVJMeteDoopgCvhS7ZnnmDET9Mu_HlBE=s400-p" alt="Sweet Ted Logo" class="auth-logo" style="margin:0;">
+      <span style="font-family:'Playfair Display'; font-size:22px; color:var(--text-muted);">×</span>
+      <img src="assets/bevigo_logo.jpg" alt="Bevi & Go Logo" class="auth-logo" style="margin:0;" onerror="this.style.display='none'">
+    </div>
+    <p style="text-align:center; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted); margin:0 0 14px;">A Sweet Ted × Bevi&amp;Go Collaboration</p>
     <h2 style="font-family:'Playfair Display'; margin-bottom:10px;">Admin Login</h2>
     <p style="color:var(--text-muted); font-size:12px; margin-bottom:25px;">Enter your credentials to access the system.</p>
     <form id="login-form" onsubmit="handleLogin(event)">
@@ -348,8 +355,9 @@
 <div id="app-wrapper">
   <div class="topbar">
     <div class="brand-block">
-      <img src="https://lh3.googleusercontent.com/a-/ALV-UjUeccNPa_aqmec1NMIUVJMeteDoopgCvhS7ZnnmDET9Mu_HlBE=s400-p" alt="Logo" class="logo-img">
-      <div class="brand-text"><h1>Sweet Ted</h1><p>Cost & Pricing System</p></div>
+      <img src="https://lh3.googleusercontent.com/a-/ALV-UjUeccNPa_aqmec1NMIUVJMeteDoopgCvhS7ZnnmDET9Mu_HlBE=s400-p" alt="Sweet Ted Logo" class="logo-img">
+      <img src="assets/bevigo_logo.jpg" alt="Bevi & Go Logo" class="logo-img" style="margin-left:6px;" onerror="this.style.display='none'">
+      <div class="brand-text"><h1>Sweet Ted × Bevi&amp;Go</h1><p>Cost & Pricing System</p></div>
     </div>
     <div class="nav-tabs">
       <button class="nav-tab active admin-only" onclick="showPage('dashboard')">📊 Dashboard</button>
@@ -358,6 +366,9 @@
       <button class="nav-tab admin-only" onclick="showPage('sales')">🛒 Sales</button>
       <button class="nav-tab admin-only" onclick="showPage('pos')">🛍️ POS</button>
       <button class="nav-tab" id="nav-eod" onclick="showPage('eod')" style="display:none;">📋 End of Day</button>
+      <button class="nav-tab barista-only" id="nav-clock" onclick="showPage('clock')" style="display:none;">⏱️ Clock In/Out</button>
+      <button class="nav-tab barista-only" id="nav-shifts" onclick="showPage('shifts')" style="display:none;">📅 My Shifts</button>
+      <button class="nav-tab barista-only" id="nav-leave" onclick="showPage('leave')" style="display:none;">🏖️ Leave / Emergency</button>
       <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
       <button class="btn btn-ghost" onclick="handleLogout()" style="margin-left:8px; font-size:12px; padding:5px 10px;">Logout</button>
     </div>
@@ -718,6 +729,83 @@
       <div class="print-only" style="margin-top:30px; text-align:right;">
         <h2 id="print-total-sales" style="font-family:'Playfair Display'; color:var(--brown-dark);"></h2>
         <p style="font-size:11px; color:#777;">* Total reflects gross revenue based on active filters.</p>
+      </div>
+    </div>
+
+    <!-- CLOCK IN/OUT (Barista) -->
+    <div class="page" id="page-clock">
+      <h2 style="font-family:'Playfair Display'; font-size:24px; margin-bottom:16px;">⏱️ Clock In / Out</h2>
+      <div class="card" style="text-align:center;">
+        <div id="clock-status" style="font-size:18px; margin-bottom:10px;">Loading…</div>
+        <div id="clock-now" style="font-size:32px; font-weight:700; font-family:'Playfair Display'; margin-bottom:20px;">--:--:--</div>
+        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="btn-clock-in" onclick="handleClockIn()">🟢 Clock In</button>
+          <button class="btn btn-save" id="btn-break-start" onclick="handleBreakStart()" style="display:none;">☕ Start Break</button>
+          <button class="btn btn-save" id="btn-break-end" onclick="handleBreakEnd()" style="display:none;">▶️ End Break</button>
+          <button class="btn btn-ghost" id="btn-clock-out" onclick="handleClockOut()" style="display:none;">🔴 Clock Out</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px;">
+        <h3>Today's Activity</h3>
+        <div id="clock-today" style="margin-top:10px; font-size:14px; color:var(--text-muted);">No entries yet.</div>
+      </div>
+    </div>
+
+    <!-- MY SHIFTS (Barista) -->
+    <div class="page" id="page-shifts">
+      <h2 style="font-family:'Playfair Display'; font-size:24px; margin-bottom:16px;">📅 My Shifts &amp; Attendance</h2>
+      <div class="grid-4" style="margin-bottom:16px;">
+        <div class="stat-card"><div class="stat-label">Total Hours (30d)</div><div class="stat-val" id="shift-hours">0h 0m</div></div>
+        <div class="stat-card"><div class="stat-label">Shifts Worked</div><div class="stat-val" id="shift-count">0</div></div>
+        <div class="stat-card"><div class="stat-label">On-Time Rate</div><div class="stat-val" id="shift-ontime">—</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Hours/Shift</div><div class="stat-val" id="shift-avg">0h</div></div>
+      </div>
+      <div class="card">
+        <h3>Recent Shifts</h3>
+        <table class="eod-table" id="shifts-table">
+          <thead><tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Break</th><th>Hours</th><th>Status</th></tr></thead>
+          <tbody><tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LEAVE / EMERGENCY (Barista) -->
+    <div class="page" id="page-leave">
+      <h2 style="font-family:'Playfair Display'; font-size:24px; margin-bottom:16px;">🏖️ File a Leave / Emergency</h2>
+      <div class="card">
+        <h3>New Request</h3>
+        <form onsubmit="submitLeaveRequest(event)" style="margin-top:10px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+            <div>
+              <label class="form-label">Type</label>
+              <select id="leave-type" class="form-input" required>
+                <option value="vacation">Vacation Leave</option>
+                <option value="sick">Sick Leave</option>
+                <option value="emergency">Emergency Leave</option>
+                <option value="personal">Personal</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Start Date</label>
+              <input type="date" id="leave-start" class="form-input" required>
+            </div>
+            <div>
+              <label class="form-label">End Date</label>
+              <input type="date" id="leave-end" class="form-input" required>
+            </div>
+          </div>
+          <label class="form-label">Reason / Details</label>
+          <textarea id="leave-reason" class="form-input" rows="4" placeholder="Briefly describe the reason…" required></textarea>
+          <button type="submit" class="btn btn-primary" style="margin-top:10px;">Submit Request</button>
+        </form>
+      </div>
+      <div class="card" style="margin-top:20px;">
+        <h3>My Requests</h3>
+        <table class="eod-table" id="leave-table">
+          <thead><tr><th>Type</th><th>Dates</th><th>Reason</th><th>Status</th><th>Filed</th></tr></thead>
+          <tbody><tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No requests yet.</td></tr></tbody>
+        </table>
       </div>
     </div>
 
@@ -1131,6 +1219,7 @@ async function checkUser() {
     document.body.classList.add('barista-mode');
     document.querySelectorAll('.nav-tab.admin-only').forEach(el => { el.style.display = 'none'; });
     document.getElementById('nav-eod').style.display = 'inline-flex';
+    ['nav-clock','nav-shifts','nav-leave'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display='inline-flex'; });
     setTimeout(() => { try { showPage('eod', true); } catch(e){} }, 50);
   } else {
     // Admin: clear any stale barista flag and force ALL admin menus visible
@@ -1411,6 +1500,9 @@ function showPage(p, programmatic) {
   if (!programmatic && typeof event !== 'undefined' && event && event.currentTarget) event.currentTarget.classList.add('active');
   if (p === 'pos') { renderPOSTiles(); renderPOSCart(); }
   if (p === 'eod') { initEODPage(); }
+  if (p === 'clock')  { initClockPage(); }
+  if (p === 'shifts') { renderShiftsPage(); }
+  if (p === 'leave')  { renderLeavePage(); }
   // Bear mascot on dashboard (admin) and EOD page (barista)
   const bear = document.getElementById('bear-mascot');
   if (bear) bear.style.display = (p === 'dashboard' || p === 'eod') ? 'flex' : 'none';
@@ -2775,6 +2867,182 @@ async function generateEODPDF() {
   y = doc.lastAutoTable.finalY + 10;
 
   doc.save(`EOD_Report_${barista.replace(/\s+/g,'_')}_${fromD}_to_${toD}.pdf`);
+}
+
+// ─── BARISTA: CLOCK / SHIFTS / LEAVE ─────────────────────────────────────────
+let _clockTickTimer = null;
+let _currentShiftId = null;
+let _currentBreakId = null;
+
+async function _currentUser() {
+  const { data: { user } } = await _sb.auth.getUser();
+  return user;
+}
+function _fmtDur(ms) {
+  if (!ms || ms < 0) ms = 0;
+  const m = Math.floor(ms / 60000);
+  const h = Math.floor(m / 60);
+  return `${h}h ${m % 60}m`;
+}
+function _todayISO() { return new Date().toISOString().slice(0,10); }
+
+async function initClockPage() {
+  if (_clockTickTimer) clearInterval(_clockTickTimer);
+  const tick = () => { const el = document.getElementById('clock-now'); if (el) el.textContent = new Date().toLocaleTimeString(); };
+  tick(); _clockTickTimer = setInterval(tick, 1000);
+  await refreshClockState();
+}
+async function refreshClockState() {
+  const user = await _currentUser(); if (!user) return;
+  // Find any open shift today
+  const { data: shifts, error } = await _sb.from('shifts')
+    .select('*')
+    .eq('user_id', user.id)
+    .is('clock_out', null)
+    .order('clock_in', { ascending: false })
+    .limit(1);
+  const open = (shifts && shifts[0]) || null;
+  _currentShiftId = open ? open.id : null;
+
+  const statusEl = document.getElementById('clock-status');
+  const inBtn  = document.getElementById('btn-clock-in');
+  const outBtn = document.getElementById('btn-clock-out');
+  const bsBtn  = document.getElementById('btn-break-start');
+  const beBtn  = document.getElementById('btn-break-end');
+
+  let onBreak = false;
+  if (open) {
+    const { data: brks } = await _sb.from('shift_breaks')
+      .select('*').eq('shift_id', open.id).is('break_end', null).limit(1);
+    onBreak = !!(brks && brks[0]);
+    _currentBreakId = onBreak ? brks[0].id : null;
+  }
+
+  if (!open) {
+    statusEl.innerHTML = '🔴 <b>Not clocked in</b>';
+    inBtn.style.display = 'inline-flex';
+    outBtn.style.display = bsBtn.style.display = beBtn.style.display = 'none';
+  } else if (onBreak) {
+    statusEl.innerHTML = `☕ <b>On break</b> (clocked in at ${new Date(open.clock_in).toLocaleTimeString()})`;
+    inBtn.style.display = bsBtn.style.display = 'none';
+    beBtn.style.display = outBtn.style.display = 'inline-flex';
+  } else {
+    statusEl.innerHTML = `🟢 <b>Clocked in</b> at ${new Date(open.clock_in).toLocaleTimeString()}`;
+    inBtn.style.display = 'none';
+    bsBtn.style.display = outBtn.style.display = 'inline-flex';
+    beBtn.style.display = 'none';
+  }
+  await renderTodayActivity(user.id);
+}
+async function renderTodayActivity(userId) {
+  const start = _todayISO() + 'T00:00:00';
+  const { data } = await _sb.from('shifts').select('*').eq('user_id', userId).gte('clock_in', start).order('clock_in');
+  const el = document.getElementById('clock-today');
+  if (!data || !data.length) { el.innerHTML = 'No entries yet.'; return; }
+  el.innerHTML = data.map(s => {
+    const inT = new Date(s.clock_in).toLocaleTimeString();
+    const outT = s.clock_out ? new Date(s.clock_out).toLocaleTimeString() : '— in progress';
+    return `<div style="padding:6px 0; border-bottom:1px solid var(--border);">⏱️ ${inT} → ${outT}</div>`;
+  }).join('');
+}
+async function handleClockIn() {
+  const user = await _currentUser(); if (!user) return;
+  const { error } = await _sb.from('shifts').insert({ user_id: user.id, clock_in: new Date().toISOString() });
+  if (error) return alert('Clock in failed: ' + error.message);
+  await refreshClockState();
+}
+async function handleClockOut() {
+  if (!_currentShiftId) return;
+  if (_currentBreakId) await handleBreakEnd();
+  const { error } = await _sb.from('shifts').update({ clock_out: new Date().toISOString() }).eq('id', _currentShiftId);
+  if (error) return alert('Clock out failed: ' + error.message);
+  await refreshClockState();
+}
+async function handleBreakStart() {
+  if (!_currentShiftId) return;
+  const { error } = await _sb.from('shift_breaks').insert({ shift_id: _currentShiftId, break_start: new Date().toISOString() });
+  if (error) return alert('Break failed: ' + error.message);
+  await refreshClockState();
+}
+async function handleBreakEnd() {
+  if (!_currentBreakId) return;
+  const { error } = await _sb.from('shift_breaks').update({ break_end: new Date().toISOString() }).eq('id', _currentBreakId);
+  if (error) return alert('End break failed: ' + error.message);
+  await refreshClockState();
+}
+
+async function renderShiftsPage() {
+  const user = await _currentUser(); if (!user) return;
+  const since = new Date(Date.now() - 30*24*3600*1000).toISOString();
+  const { data: shifts } = await _sb.from('shifts')
+    .select('*, shift_breaks(break_start, break_end)')
+    .eq('user_id', user.id)
+    .gte('clock_in', since)
+    .order('clock_in', { ascending: false });
+  const list = shifts || [];
+  let totalMs = 0, count = 0;
+  const tbody = document.querySelector('#shifts-table tbody');
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No shifts in the last 30 days.</td></tr>'; }
+  else {
+    tbody.innerHTML = list.map(s => {
+      const inT = new Date(s.clock_in);
+      const outT = s.clock_out ? new Date(s.clock_out) : null;
+      let breakMs = 0;
+      (s.shift_breaks||[]).forEach(b => {
+        if (b.break_start && b.break_end) breakMs += new Date(b.break_end) - new Date(b.break_start);
+      });
+      const dur = outT ? (outT - inT - breakMs) : 0;
+      if (outT) { totalMs += dur; count++; }
+      const status = outT ? '<span style="color:var(--sage);">✓ Completed</span>' : '<span style="color:var(--rose);">⏳ In progress</span>';
+      return `<tr>
+        <td>${inT.toLocaleDateString()}</td>
+        <td>${inT.toLocaleTimeString()}</td>
+        <td>${outT ? outT.toLocaleTimeString() : '—'}</td>
+        <td>${_fmtDur(breakMs)}</td>
+        <td>${outT ? _fmtDur(dur) : '—'}</td>
+        <td>${status}</td>
+      </tr>`;
+    }).join('');
+  }
+  document.getElementById('shift-hours').textContent = _fmtDur(totalMs);
+  document.getElementById('shift-count').textContent = count;
+  document.getElementById('shift-avg').textContent   = count ? _fmtDur(totalMs / count) : '0h';
+  document.getElementById('shift-ontime').textContent = count ? '100%' : '—';
+}
+
+async function renderLeavePage() {
+  const user = await _currentUser(); if (!user) return;
+  const { data } = await _sb.from('leave_requests')
+    .select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+  const tbody = document.querySelector('#leave-table tbody');
+  if (!data || !data.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No requests yet.</td></tr>'; return; }
+  tbody.innerHTML = data.map(r => {
+    const color = r.status === 'approved' ? 'var(--sage)' : r.status === 'rejected' ? 'var(--rose)' : 'var(--brown-dark)';
+    return `<tr>
+      <td><b>${r.leave_type}</b></td>
+      <td>${r.start_date}${r.end_date && r.end_date !== r.start_date ? ' → '+r.end_date : ''}</td>
+      <td style="max-width:300px;">${(r.reason||'').replace(/</g,'&lt;')}</td>
+      <td style="color:${color}; font-weight:700; text-transform:capitalize;">${r.status||'pending'}</td>
+      <td>${new Date(r.created_at).toLocaleDateString()}</td>
+    </tr>`;
+  }).join('');
+}
+async function submitLeaveRequest(e) {
+  e.preventDefault();
+  const user = await _currentUser(); if (!user) return;
+  const payload = {
+    user_id: user.id,
+    leave_type: document.getElementById('leave-type').value,
+    start_date: document.getElementById('leave-start').value,
+    end_date:   document.getElementById('leave-end').value,
+    reason:     document.getElementById('leave-reason').value,
+    status:     'pending'
+  };
+  const { error } = await _sb.from('leave_requests').insert(payload);
+  if (error) return alert('Submit failed: ' + error.message);
+  alert('Request submitted ✓');
+  e.target.reset();
+  renderLeavePage();
 }
 </script>
 
